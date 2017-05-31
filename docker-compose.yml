@@ -1,0 +1,15 @@
+version: '3'
+services:
+  mongo:
+    image: mongo:3.4
+  web:
+    image: lonelymoon/starter-app:test
+    build: .
+    ports:
+     - "3000:3000"
+    environment:
+     - MONGODB_URI=mongodb://mongo:27017/test 
+    links:
+     - mongo 
+    depends_on: 
+     - mongo 
