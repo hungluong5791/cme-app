@@ -7,7 +7,7 @@ node('Dev_Ops_2') {
 
     stage('Unit Test') {
         ansiColor('xterm') {
-            sh 'Test Passed!'
+            sh 'echo "Test Passed!"'
         }
     }
 
@@ -29,6 +29,6 @@ node('Dev_Ops_2') {
     }
 
     stage('Integration Test') {
-        sh 'Test passed!'
+        sh 'echo "Test Passed!"'
     }
 }
