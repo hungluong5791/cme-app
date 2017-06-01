@@ -13,7 +13,7 @@ node('Dev_Ops_2') {
         stage('Unit test') {
             sh 'rm -rf reports/*'
             ansiColor('xterm') {
-                sh "npm test"
+                sh "MOCHAWESOME_REPORTDIR=reports MOCHAWESOME_REPORTFILENAME=mocha-report MOCHAWESOME_REPORTPAGETITLE='Build #${env.BUILD_NUMBER}' npm test"
             }
         }
 
