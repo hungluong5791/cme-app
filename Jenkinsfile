@@ -35,9 +35,9 @@ node('Dev_Ops_2') {
         stage('Integration Test') {
             sh 'echo "Test Passed!"'
         }
-    } catch (error) {
+    } catch (err) {
         currentBuild.result = "FAILURE"
-        err = error;
+        error = err;
     } finally {
         def notification = """
             Pipeline ${env.BUILD_NUMBER} Report:
