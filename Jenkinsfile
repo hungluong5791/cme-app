@@ -2,7 +2,7 @@ node('Dev_Ops_2') {
     currentBuild.result = "SUCCESS"
     def subject = "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}"
     def recipient = "hunglk1@fsoft.com.vn"
-    def unitTestStatus = ''
+    def unitTestReport = ''
     def integrationTestStatus = ''
     def pipelineError = ''
 
