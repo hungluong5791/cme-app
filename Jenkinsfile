@@ -52,7 +52,7 @@ node('Dev_Ops_2') {
         """
         mail to: "hunglk1@fsoft.com.vn",
             body: "${notification}" ,
-            replyTo: "${DEFAULT_REPLYTO}",
+            // replyTo: "${DEFAULT_REPLYTO}",
             subject: "Jenkins Pipeline Build Report ${env.BUILD_NUMBER}"
     }
 }
