@@ -15,7 +15,8 @@ node('Dev_Ops_2') {
 
         stage('Unit test') {
             ansiColor('xterm') {
-                unitTestStatus = sh script: "npm test", returnStdout: true
+                sh script: "npm test"
+                unitTestReport = sh script: "cat reports/report.html", returnStdout: true
             }
         }
 
@@ -50,8 +51,8 @@ node('Dev_Ops_2') {
 
         <p>Status: ${currentBuild.result}</p>
 
-        <p>Unit Test:</p>
-        ${unitTestStatus}
+        <p>Unit Test Report:</p>
+        ${unitTestReport}
 
         <p>Integration Test: PASSED</p>
         
@@ -60,7 +61,7 @@ node('Dev_Ops_2') {
             notification += "Pipeline error: ${pipelineError}"
         }
 
-        mail body: notification, subject: subject, to: recipient
-        emailext body: notification, mimeType: 'text/html', subject: subject, to: recipient
+        // mail body: notification, subject: subject, to: recipient
+        emailext body: notification, mimeType: 'text/html', subject: subject, to: recipient, attachLog: true
     }
 }
