@@ -48,7 +48,7 @@ node('Dev_Ops_2') {
 
             Integration Test Report : PASSED
 
-            Error: ${err}
+            Error: ${error}
         """
         mail to: "hunglk1@fsoft.com.vn",
             body: "${notification}" ,
