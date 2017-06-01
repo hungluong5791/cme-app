@@ -1,16 +1,16 @@
 {
-  "name": "hackathon-starter",
+  "name": "cme-devops-demo-app",
   "version": "4.3.0",
-  "description": "A boilerplate for Node.js web applications",
+  "description": "Demo application for CME DevOps",
   "repository": {
     "type": "git",
-    "url": "https://github.com/sahat/hackathon-starter.git"
+    "url": "https://github.com/lonelymoon57/cme-app.git"
   },
-  "author": "Sahat Yalkabov",
+  "author": "Hung Luong",
   "license": "MIT",
   "scripts": {
     "start": "node app.js",
-    "test": "mocha --reporter mocha-simple-html-reporter --reporter-options output=reports/report.html",
+    "test": "mocha --reporter mocha-simple-html-reporter",
     "postinstall": "npm rebuild node-sass"
   },
   "dependencies": {
@@ -68,7 +68,6 @@
     "eslint-plugin-import": "^2.1.0",
     "mocha": "^3.1.2",
     "mocha-simple-html-reporter": "^1.0.1",
-    "mochawesome": "^2.2.0",
     "sinon": "^2.0.0",
     "sinon-mongoose": "^1.3.0",
     "supertest": "^3.0.0"
