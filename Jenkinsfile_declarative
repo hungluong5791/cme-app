@@ -65,13 +65,5 @@ pipeline {
         always {
             sh 'echo "This will always run at the end?"'
         }
-
-        success {
-
-        }
-
-        failure {
-
-        }
     }
 }
