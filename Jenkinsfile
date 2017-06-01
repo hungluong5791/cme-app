@@ -22,6 +22,7 @@ node('Dev_Ops_2') {
                 app = docker.build("cme-devops")
                 app.inside("--privileged") {
                     sh 'whoami'
+                    sh 'echo "Test Passed!"'
                 }
             }
         }
