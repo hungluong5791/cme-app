@@ -4,7 +4,7 @@ node('Dev_Ops_2') {
     def recipient = "hunglk1@fsoft.com.vn"
     try {
         def app
-        def unitTestStatus
+        def unitTestStatus = ''
 
         stage('Checkout') {
             checkout scm
