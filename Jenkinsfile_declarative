@@ -28,17 +28,21 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                ansiColor('xterm') {
-                    docker.build("${DOCKER_REPO}")
+                script {
+                    ansiColor('xterm') {
+                        docker.build("${DOCKER_REPO}")
+                    }
                 }
             }
         }
 
         stage('Docker Push') {
             steps {
-                docker.withRegistry("${DOCKER_REGISTRY}", "${AWS_CREDENTIALS_ID}") {
-                    app.push('${env.BUILD_NUMBER}')
-                    app.push('latest')
+                script {
+                    docker.withRegistry("${DOCKER_REGISTRY}", "${AWS_CREDENTIALS_ID}") {
+                        app.push('${env.BUILD_NUMBER}')
+                        app.push('latest')
+                    }
                 }
             }
         }
