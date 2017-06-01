@@ -1,12 +1,10 @@
 node('Dev_Ops_2') {
     currentBuild.result = "SUCCESS"
-    def subject = "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER} Report"
+    def subject = "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}"
     def recipient = "hunglk1@fsoft.com.vn"
     try {
         def app
         def unitTestStatus
-
-        
 
         stage('Checkout') {
             checkout scm
@@ -21,9 +19,6 @@ node('Dev_Ops_2') {
         stage('Docker Build') {
             ansiColor('xterm') {
                 app = docker.build("cme-devops")
-                app.inside {
-                    sh 'echo "Do I dare?"'
-                }
             }
         }
 
