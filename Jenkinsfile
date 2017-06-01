@@ -62,6 +62,6 @@ node('Dev_Ops_2') {
         }
 
         // mail body: notification, subject: subject, to: recipient
-        emailext body: notification, mimeType: 'text/html', subject: subject, to: recipient, attachLog: true
+        emailext body: notification, mimeType: 'text/html', subject: subject, to: recipient, attachLog: true, attachmentsPattern: "reports/*"
     }
 }
