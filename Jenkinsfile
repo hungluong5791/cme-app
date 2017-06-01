@@ -59,5 +59,4 @@ node('Dev_Ops_2') {
         Integration Test: PASSED"""
 
     mail body: notification, subject: subject, to: recipient
-    }
 }
