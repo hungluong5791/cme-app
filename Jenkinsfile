@@ -24,7 +24,8 @@ node('Dev_Ops_2') {
         stage('Unit Test') {
             ansiColor('xterm') {
                 app.inside("--privileged") {
-                    unitTestStatus = sh script: "env MONGODB_URI=$(route | awk '/^default/ { print $2 }') npm test", returnStdout: true
+                    def host = sh "route | awk '/^default/ { print $2 }'"
+                    unitTestStatus = sh script: "env MONGODB_URI=${host} npm test", returnStdout: true
                     unitTestStatus = unitTestStatus.trim()
                 }
             }
