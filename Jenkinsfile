@@ -11,6 +11,10 @@ node('Dev_Ops_2') {
             checkout scm
         }
 
+        stage('Unit test') {
+
+        }
+
         stage('Docker Build') {
             ansiColor('xterm') {
                 app = docker.build("cme-devops")
@@ -20,7 +24,8 @@ node('Dev_Ops_2') {
         stage('Unit Test') {
             ansiColor('xterm') {
                 app.inside("--privileged") {
-                    unitTestStatus = sh script: 'npm test', returnStdout: true
+                    unitTestStatus = sh script: 'env MONGODB_URI=$(route | awk "/^default/ { print $2 }") npm test', returnStdout: true
+                    unitTestStatus = unitTestStatus.trim()
                 }
             }
         }
@@ -43,24 +48,16 @@ node('Dev_Ops_2') {
     } catch (error) {
         currentBuild.result = "FAILURE"
         throw error
-        // def notification = """
-        //     Build URL: ${env.BUILD_URL}
-        //     Status: ${currentBuild.result}
+    }
 
-        //     Error: ${error}
-        // """
-        // mail body: notification, subject: subject, to: recipient
-    } finally {
-        def notification = """
-            Build URL: ${env.BUILD_URL}
-            Status: ${currentBuild.result}
-            Unit Test:
-            ${unitTestStatus}
+    def notification = """
+        Build URL: ${env.BUILD_URL}
+        Status: ${currentBuild.result}
+        Unit Test:
+        ${unitTestStatus}
 
-            Integration Test: PASSED
+        Integration Test: PASSED"""
 
-            Error: None
-        """
-        mail body: notification, subject: subject, to: recipient
+    mail body: notification, subject: subject, to: recipient
     }
 }
