@@ -4,6 +4,8 @@ node('Dev_Ops_2') {
     def recipient = "hunglk1@fsoft.com.vn"
     def unitTestStatus = ''
     def integrationTestStatus = ''
+    def pipelineError = ''
+
     try {
         def app
         
@@ -24,7 +26,7 @@ node('Dev_Ops_2') {
         stage('Unit Test') {
             ansiColor('xterm') {
                 app.inside("--privileged") {
-                    def host = sh "route | awk '/^default/ { print $2 }'"
+                    def host = sh 'route | awk \'/^default/ { print $2 }\''
                     unitTestStatus = sh script: "env MONGODB_URI=${host} npm test", returnStdout: true
                     unitTestStatus = unitTestStatus.trim()
                 }
@@ -48,6 +50,7 @@ node('Dev_Ops_2') {
         }
     } catch (error) {
         currentBuild.result = "FAILURE"
+        pipelineError = error
         throw error
     }
 
@@ -57,7 +60,12 @@ node('Dev_Ops_2') {
         Unit Test:
         ${unitTestStatus}
 
-        Integration Test: PASSED"""
+        Integration Test: PASSED
+        
+        """
+    if (pipelineError != null && !pipelineError.isEmpty()) {
+        notification += "Pipeline error: ${pipelineError}"
+    }
 
     mail body: notification, subject: subject, to: recipient
 }
