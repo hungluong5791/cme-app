@@ -5,7 +5,7 @@ pipeline {
         timestamps()
     }
     
-    environment { 
+    environment {
         DOCKER_REGISTRY = 'https://768738047170.dkr.ecr.us-east-1.amazonaws.com'
         DOCKER_REPO = 'cme-devops'
         AWS_CREDENTIALS_ID = 'ecr:us-east-1:cme-devops-aws-credentials'
@@ -54,7 +54,7 @@ pipeline {
             steps {
                 sh 'echo "Test Passed!"'
             }
-        }}
+        }
     }
 
     post {
