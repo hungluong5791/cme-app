@@ -35,7 +35,7 @@ node('Dev_Ops_2') {
         }
 
         stage('Integration Test') {
-            sh 'cd CME_DEMO_DEVOPS_AUTOTEST && chmod +x drivers/chromedriver_linux64 && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
+            sh 'cd CME_DEMO_DEVOPS_AUTOTEST && mvn clean install && chmod +x drivers/chromedriver_linux64 && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
         }
     } catch (error) {
         currentBuild.result = "FAILURE"
