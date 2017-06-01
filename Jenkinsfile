@@ -11,6 +11,7 @@ node('Dev_Ops_2') {
         }
 
         stage('Unit test') {
+            sh 'rm -rf reports/*'
             ansiColor('xterm') {
                 sh "npm test"
             }
