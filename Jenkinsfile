@@ -50,9 +50,9 @@ node('Dev_Ops_2') {
 
             Error: ${err}
         """
-        mail body: "${notification}" ,
-            to: "hunglk1@fsoft.com.vn"
+        mail to: "hunglk1@fsoft.com.vn",
+            body: "${notification}" ,
             replyTo: "${DEFAULT_REPLYTO}",
-            subject: "Jenkins Pipeline Build Report ${env.BUILD_NUMBER}",
+            subject: "Jenkins Pipeline Build Report ${env.BUILD_NUMBER}"
     }
 }
