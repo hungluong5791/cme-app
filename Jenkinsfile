@@ -2,10 +2,11 @@ node('Dev_Ops_2') {
     currentBuild.result = "SUCCESS"
     def subject = "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}"
     def recipient = "hunglk1@fsoft.com.vn"
+    def unitTestStatus = ''
+    def integrationTestStatus = ''
     try {
         def app
-        def unitTestStatus = ''
-
+        
         stage('Checkout') {
             checkout scm
         }
@@ -19,6 +20,9 @@ node('Dev_Ops_2') {
         stage('Docker Build') {
             ansiColor('xterm') {
                 app = docker.build("cme-devops")
+                app.inside("--privileged") {
+                    sh 'whoami'
+                }
             }
         }
 
@@ -39,6 +43,7 @@ node('Dev_Ops_2') {
         }
     } catch (error) {
         currentBuild.result = "FAILURE"
+        throw error
         // def notification = """
         //     Build URL: ${env.BUILD_URL}
         //     Status: ${currentBuild.result}
