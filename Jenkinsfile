@@ -14,22 +14,14 @@ node('Dev_Ops_2') {
         }
 
         stage('Unit test') {
-
+            ansiColor('xterm') {
+                unitTestStatus = sh script: "npm test", returnStdout: true
+            }
         }
 
         stage('Docker Build') {
             ansiColor('xterm') {
                 app = docker.build("cme-devops")
-            }
-        }
-
-        stage('Unit Test') {
-            ansiColor('xterm') {
-                app.inside("--privileged") {
-                    def host = sh 'route | awk \'/^default/ { print $2 }\''
-                    unitTestStatus = sh script: "env MONGODB_URI=${host} npm test", returnStdout: true
-                    unitTestStatus = unitTestStatus.trim()
-                }
             }
         }
 
@@ -52,9 +44,8 @@ node('Dev_Ops_2') {
         currentBuild.result = "FAILURE"
         pipelineError = error
         throw error
-    }
-
-    def notification = """
+    } finally {
+        def notification = """
         Build URL: ${env.BUILD_URL}
         Status: ${currentBuild.result}
         Unit Test:
@@ -63,9 +54,10 @@ node('Dev_Ops_2') {
         Integration Test: PASSED
         
         """
-    if (pipelineError != null && !pipelineError.isEmpty()) {
-        notification += "Pipeline error: ${pipelineError}"
-    }
+        if (pipelineError != null && !pipelineError.isEmpty()) {
+            notification += "Pipeline error: ${pipelineError}"
+        }
 
-    mail body: notification, subject: subject, to: recipient
+        mail body: notification, subject: subject, to: recipient
+    }
 }
