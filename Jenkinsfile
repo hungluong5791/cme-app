@@ -46,12 +46,14 @@ node('Dev_Ops_2') {
         throw error
     } finally {
         def notification = """
-        Build URL: ${env.BUILD_URL}
-        Status: ${currentBuild.result}
-        Unit Test:
+        <p>Build URL: ${env.BUILD_URL}</p>
+
+        <p>Status: ${currentBuild.result}</p>
+
+        <p>Unit Test:</p>
         ${unitTestStatus}
 
-        Integration Test: PASSED
+        <p>Integration Test: PASSED</p>
         
         """
         if (pipelineError != null && !pipelineError.isEmpty()) {

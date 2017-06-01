@@ -10,7 +10,7 @@
   "license": "MIT",
   "scripts": {
     "start": "node app.js",
-    "test": "mocha --reporter spec",
+    "test": "mocha --reporter mocha-simple-html-reporter",
     "postinstall": "npm rebuild node-sass"
   },
   "dependencies": {
