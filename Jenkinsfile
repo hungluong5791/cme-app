@@ -2,9 +2,6 @@ node('Dev_Ops_2') {
     currentBuild.result = "SUCCESS"
     def subject = "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}"
     def recipient = "hunglk1@fsoft.com.vn"
-    def unitTestReport = ''
-    def integrationTestStatus = ''
-    def pipelineError = ''
 
     try {
         def app
@@ -15,8 +12,7 @@ node('Dev_Ops_2') {
 
         stage('Unit test') {
             ansiColor('xterm') {
-                sh script: "npm test"
-                unitTestReport = sh script: "cat reports/report.html", returnStdout: true
+                sh "npm test"
             }
         }
 
@@ -39,29 +35,19 @@ node('Dev_Ops_2') {
         }
 
         stage('Integration Test') {
-            sh 'echo "Test Passed!"'
+            sh 'cd CME_DEMO_DEVOPS_AUTOTEST && chmod +x drivers/chromedriver_linux64 && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
         }
     } catch (error) {
         currentBuild.result = "FAILURE"
-        pipelineError = error
-        throw error
     } finally {
         def notification = """
         <p>Build URL: ${env.BUILD_URL}</p>
 
         <p>Status: ${currentBuild.result}</p>
 
-        <p>Unit Test Report:</p>
-        ${unitTestReport}
-
-        <p>Integration Test: PASSED</p>
-        
+        Please find attached the Log and Test Reports for this build.
         """
-        if (pipelineError != null && !pipelineError.isEmpty()) {
-            notification += "Pipeline error: ${pipelineError}"
-        }
 
-        // mail body: notification, subject: subject, to: recipient
         emailext body: notification, mimeType: 'text/html', subject: subject, to: recipient, attachLog: true, attachmentsPattern: "reports/*"
     }
 }
