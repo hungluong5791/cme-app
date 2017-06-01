@@ -1,9 +1,12 @@
 node('Dev_Ops_2') {
     currentBuild.result = "SUCCESS"
-    def error
+    def subject = "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER} Report"
+    def recipient = "hunglk1@fsoft.com.vn"
     try {
         def app
         def unitTestStatus
+
+        
 
         stage('Checkout') {
             checkout scm
@@ -18,6 +21,9 @@ node('Dev_Ops_2') {
         stage('Docker Build') {
             ansiColor('xterm') {
                 app = docker.build("cme-devops")
+                app.inside {
+                    sh 'echo "Do I dare?"'
+                }
             }
         }
 
@@ -36,15 +42,16 @@ node('Dev_Ops_2') {
         stage('Integration Test') {
             sh 'echo "Test Passed!"'
         }
-    } catch (err) {
+    } catch (error) {
         currentBuild.result = "FAILURE"
-        error = err;
+        def notification = """
+            Build URL: ${env.BUILD_URL}
+            Status: ${currentBuild.result}
+
+            Error: ${error}
+        """
+        mail body: notification, subject: subject, to: recipient
     } finally {
-        def subject = "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER} Report"
-        def recipient = "hunglk1@fsoft.com.vn"
-        if (error == null) {
-            error = 'None'
-        }
         def notification = """
             Build URL: ${env.BUILD_URL}
             Status: ${currentBuild.result}
@@ -55,6 +62,6 @@ node('Dev_Ops_2') {
 
             Error: ${error}
         """
-        emailext attachLog: true, body: notification, subject: subject, to: recipient
+        mail body: notification, subject: subject, to: recipient
     }
 }
