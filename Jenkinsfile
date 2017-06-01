@@ -11,18 +11,16 @@ node('Dev_Ops_2') {
             checkout scm
         }
 
-        stage('Unit Test') {
-            ansiColor('xterm') {
-                // unitTestStatus = sh script: 'env MONGODB_URI=mongodb://ec2-34-201-32-210.compute-1.amazonaws.com:27017 npm test', returnStdout: true
-            }
-        }
-
         stage('Docker Build') {
             ansiColor('xterm') {
                 app = docker.build("cme-devops")
+            }
+        }
+
+        stage('Unit Test') {
+            ansiColor('xterm') {
                 app.inside("--privileged") {
-                    sh 'whoami'
-                    sh 'echo "Test Passed!"'
+                    unitTestStatus = sh script: 'npm test', returnStdout: true
                 }
             }
         }
