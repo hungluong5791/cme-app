@@ -1,0 +1,73 @@
+<html>
+<head>
+<script>
+function loadXMLDoc(filename) {
+	if (window.ActiveXObject) {
+		xhttp = new ActiveXObject("Msxml2.XMLHTTP");
+	}
+	else {
+		xhttp = new XMLHttpRequest();
+	}
+	xhttp.open("GET", filename, false);
+	try {xhttp.responseType = "msxml-document"} catch(err) {} // Helping IE11
+	xhttp.send("");
+	
+	return xhttp.responseXML;
+}
+
+function displayReport() {
+	xml = loadXMLDoc("data/{{REPORT_XML}}");
+	xsl = loadXMLDoc("data/Report_Styles.xsl");
+	
+	// code for IE
+	if (window.ActiveXObject || xhttp.responseType == "msxml-document") {
+		ex = xml.transformNode(xsl);
+		document.getElementById("main").innerHTML = ex;
+	}	
+	// code for Chrome, Firefox, Opera, etc.
+	else if (document.implementation && document.implementation.createDocument) {
+		xsltProcessor = new XSLTProcessor();
+		xsltProcessor.importStylesheet(xsl);
+		resultDocument = xsltProcessor.transformToFragment(xml, document);
+		document.getElementById("main").appendChild(resultDocument);
+	}
+}
+</script>
+<style>
+a:link {
+    color: #8ac007;
+	text-decoration: none;
+}
+
+/* visited link */
+a:visited {
+    color: #8ac007;
+}
+
+/* mouse over link */
+a:hover {
+    color: #215967;
+	text-decoration: underline;
+}
+
+/* selected link */
+a:active {
+    color: #8ac007;
+}
+
+#header {
+    border-radius: 10px 10px 0 0;
+	padding: 10px;
+    background: #00b050;
+    width: 99%;
+	font-size: 18px;
+	color:white;
+	font-weight: bold;
+	text-align: center;
+}
+</style>
+</head>
+<body onload="displayReport()">
+<div id="main" />
+</body>
+</html>

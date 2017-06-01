@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?><Scenario>
+	<Sheets>
+		<Sheet name="CheckUIRole">
+            <DataFile name="ART Test Data - Devops.xlsx" sheet="Data"/>
+            <TestIDs name="DEVOPS-1;DEVOPS-2;DEVOPS-3;"/>
+            <Keywords>
+                <Keyword name="OpenBrowser">
+                    <Params/>
+                </Keyword>
+                <Keyword name="CreateNewAccount">
+                    <Params/>
+                </Keyword>
+                <Keyword name="VerifyCreateAccount">
+                    <Params/>
+                </Keyword>
+                <Keyword name="CloseBrowser">
+                    <Params/>
+                </Keyword>
+                
+            </Keywords>
+        </Sheet>
+	</Sheets>
+</Scenario>
