@@ -33,7 +33,7 @@ node('Dev_Ops_2') {
             }
         }
 
-        stage('AWS Deploy') {
+        stage('AWS Deploy Staging') {
             sh 'chmod +x deploy-aws.sh'
             sh './deploy-aws.sh'
         }
