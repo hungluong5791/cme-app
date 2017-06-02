@@ -7,13 +7,19 @@ node('Dev_Ops_2') {
         def app
         
         stage('Checkout') {
-            checkout scm
+            checkout([
+                $class: 'GitSCM', 
+                branches: [[name: '*/qa']], 
+                doGenerateSubmoduleConfigurations: false, 
+                extensions: [[$class: 'CleanBeforeCheckout']], 
+                submoduleCfg: [], 
+                userRemoteConfigs: [[credentialsId: 'github-personal-hunglk1', url: 'https://github.com/lonelymoon57/cme-app']]])
         }
 
         stage('Unit test') {
             sh 'rm -rf reports/*'
             ansiColor('xterm') {
-                sh "MOCHAWESOME_REPORTDIR=reports MOCHAWESOME_REPORTFILENAME=mocha-report MOCHAWESOME_REPORTPAGETITLE='Build #${env.BUILD_NUMBER}' npm test"
+                sh "npm install && MOCHAWESOME_REPORTDIR=reports MOCHAWESOME_REPORTFILENAME=mocha-report MOCHAWESOME_REPORTPAGETITLE='Build #${env.BUILD_NUMBER}' npm test"
             }
         }
 
