@@ -1,16 +1,24 @@
 node('Dev_Ops_2') {
     currentBuild.result = "SUCCESS"
-    def error
+    def subject = "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}"
+    def recipient = "hunglk1@fsoft.com.vn"
+
     try {
         def app
-
+        
         stage('Checkout') {
-            checkout scm
+            checkout([
+                $class: 'GitSCM', 
+                branches: [[name: '*/qa']], 
+                doGenerateSubmoduleConfigurations: false, 
+                extensions: [[$class: 'CleanBeforeCheckout']], 
+                submoduleCfg: [], 
+                userRemoteConfigs: [[credentialsId: 'github-personal-hunglk1', url: 'https://github.com/lonelymoon57/cme-app']]])
         }
 
-        stage('Unit Test') {
+        stage('Unit test') {
             ansiColor('xterm') {
-                sh 'echo "Test Passed!"'
+                sh "npm install && MOCHAWESOME_REPORTDIR=reports MOCHAWESOME_REPORTFILENAME=mocha-report MOCHAWESOME_REPORTPAGETITLE='Build #${env.BUILD_NUMBER}' npm test"
             }
         }
 
@@ -27,32 +35,26 @@ node('Dev_Ops_2') {
             }
         }
 
-        stage('AWS Deploy') {
+        stage('AWS Deploy Staging') {
             sh 'chmod +x deploy-aws.sh'
             sh './deploy-aws.sh'
         }
 
         stage('Integration Test') {
-            sh 'echo "Test Passed!"'
+            sh 'cd CME_DEMO_DEVOPS_AUTOTEST && mvn clean install && chmod +x drivers/chromedriver_linux64 && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
+            sh 'mv CME_DEMO_DEVOPS_AUTOTEST/reports/* reports/'
         }
     } catch (error) {
         currentBuild.result = "FAILURE"
-        err = error;
     } finally {
         def notification = """
-            Pipeline ${env.BUILD_NUMBER} Report:
+        <p>Build URL: ${env.BUILD_URL}</p>
 
-            Status: ${currentBuild.result}
+        <p>Status: ${currentBuild.result}</p>
 
-            Unit Test Report: PASSED
-
-            Integration Test Report : PASSED
-
-            Error: ${err}
+        Please find attached the Log and Test Reports for this build.
         """
-        mail body: "${notification}" ,
-            to: "hunglk1@fsoft.com.vn"
-            replyTo: '${DEFAULT_REPLYTO}',
-            subject: 'Jenkins Pipeline Build Report ${env.BUILD_NUMBER}',
+
+        emailext body: notification, mimeType: 'text/html', subject: subject, to: recipient, attachLog: true, attachmentsPattern: "reports/*"
     }
 }
