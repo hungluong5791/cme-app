@@ -7,13 +7,8 @@ node('Dev_Ops_2') {
         def app
         
         stage('Checkout') {
-            checkout([
-                $class: 'GitSCM', 
-                branches: [[name: '*/qa']], 
-                doGenerateSubmoduleConfigurations: false, 
-                extensions: [[$class: 'CleanBeforeCheckout']], 
-                submoduleCfg: [], 
-                userRemoteConfigs: [[credentialsId: 'github-personal-hunglk1', url: 'https://github.com/lonelymoon57/cme-app']]])
+            checkout scm
+            sh 'rm reports/*'
         }
 
         stage('Unit test') {
