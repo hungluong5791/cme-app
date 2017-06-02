@@ -26,7 +26,6 @@ node('Dev_Ops_2') {
         stage('Docker Push') {
             docker.withRegistry('https://768738047170.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:cme-devops-aws-credentials') {
                 app.push('latest')
-                app.push("${env.BUILD_NUMBER}")
             }
         }
 
