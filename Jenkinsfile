@@ -8,7 +8,7 @@ node('Dev_Ops_2') {
         
         stage('Checkout') {
             checkout scm
-            sh 'rm reports/*'
+            sh 'rm -rf reports/*'
         }
 
         stage('Unit test') {
