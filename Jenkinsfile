@@ -41,6 +41,7 @@ node('Dev_Ops_2') {
         }
 
         stage('Integration Test') {
+            sleep 13
             sh 'cd CME_DEMO_DEVOPS_AUTOTEST && mvn clean install && chmod +x drivers/chromedriver_linux64 && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
             sh 'mv CME_DEMO_DEVOPS_AUTOTEST/reports/* reports/'
         }
