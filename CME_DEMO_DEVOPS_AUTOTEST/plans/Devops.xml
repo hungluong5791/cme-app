@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?><execution-plan>
     <aut_path>http://ec2-34-200-221-137.compute-1.amazonaws.com/</aut_path>
     <file Path="Devops.xml">
-        <scenario InSheet="CheckUIRole" TestID="DEVOPS-1"/>
-        <scenario InSheet="CheckUIRole" TestID="DEVOPS-2"/>
-        <scenario InSheet="CheckUIRole" TestID="DEVOPS-3"/>
+        <scenario InSheet="CheckUIRole" TestID="DEVOPS-4"/>
+        <scenario InSheet="CheckUIRole" TestID="DEVOPS-5"/>
+        <scenario InSheet="CheckUIRole" TestID="DEVOPS-6"/>
     </file>
 </execution-plan>
