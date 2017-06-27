@@ -11,12 +11,12 @@ node('Dev_Ops_2') {
                             fields: [
                                     project: [key: 'CME'],
                                     summary: "JenkinsCI: Build #${env.BUILD_NUMBER}",
-                                    description: "JenkinsCI: Build #${env.BUILD_NUMBER}",
                                     issuetype: [id: '10011']
                             ]
                         ]
 
             def response = jiraNewIssue issue: issue, site: 'CME JIRA'
+            sleep 5
             env.BUILD_TICKET_ID = response.data.id
 
             def updatedIssue = issue
