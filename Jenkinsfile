@@ -79,11 +79,11 @@ node('Dev_Ops_2') {
                                 description: 'JenkinsCI: Build #${env.BUILD_NUMBER}',
                                 customfield_10036: '${currentBuild.result}',
                                 issuetype: [id: '10011'],
-                                transitions: ["id": "5"]
+                                transitions: [id: "5"]
                         ]
                     ]
 
-        jiraEditIssue idOrKey: env.buildTicket.id, issue = issue
+        // jiraEditIssue idOrKey: env.buildTicket.id, issue = issue
         
         // httpRequest httpMode: 'POST', ignoreSslErrors: true, responseHandle: 'NONE', url: 'http://10.88.96.79:8080/rest/api/2/issue/{issueIdOrKey}/attachments'
     }
