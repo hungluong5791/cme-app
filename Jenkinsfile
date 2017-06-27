@@ -19,7 +19,7 @@ node('Dev_Ops_2') {
             echo response
             sleep 15
             echo "${response.successful.toString()}"
-            echo "${response.data.toString()}""
+            echo "${response.data.toString()}"
             // env.BUILD_TICKET_ID = response.data.id
 
             // def updatedIssue = issue
