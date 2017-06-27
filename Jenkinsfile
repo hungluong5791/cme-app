@@ -20,12 +20,12 @@ node('Dev_Ops_2') {
             echo response.successful.toString()
             echo response.data.toString()
             sleep 5
-            env.BUILD_TICKET_ID = response.data.id
+            // env.BUILD_TICKET_ID = response.data.id
 
-            def updatedIssue = issue
-            updatedIssue.transition = ["id": "5"]
+            // def updatedIssue = issue
+            // updatedIssue.transition = ["id": "5"]
 
-            jiraEditIssue idOrKey: "${env.BUILD_TICKET_ID}", issue = updatedIssue
+            // jiraEditIssue idOrKey: "${env.BUILD_TICKET_ID}", issue = updatedIssue
         }
         
         stage('Checkout') {
