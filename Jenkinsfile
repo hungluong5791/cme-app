@@ -17,6 +17,7 @@ node('Dev_Ops_2') {
 
             def response = jiraNewIssue issue: issue, site: 'CME JIRA'
             echo response.successful.toString()
+            echo 0
             // sleep 15
             // echo "${response.successful.toString()}"
             // echo "${response.data.toString()}"
