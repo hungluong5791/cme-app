@@ -16,12 +16,8 @@ node('Dev_Ops_2') {
                         ]
 
             def response = jiraNewIssue issue: issue, site: 'CME JIRA'
-            echo "${response.toString()}"
-            echo response.successful
-            echo 0
-            // sleep 15
-            // echo "${response.successful.toString()}"
-            // echo "${response.data.toString()}"
+            echo response.successful.toString()
+            echo response.data.toString()
             // env.BUILD_TICKET_ID = response.data.id
 
             // def updatedIssue = issue
