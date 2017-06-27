@@ -17,7 +17,6 @@ node('Dev_Ops_2') {
 
             try {
                 response = jiraNewIssue issue: issue, site: 'CME JIRA'
-                echo response.successful.toString()
                 echo response.data.toString()
             } catch (error1) {
                 echo error1
