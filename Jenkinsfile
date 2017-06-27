@@ -16,7 +16,7 @@ node('Dev_Ops_2') {
                         ]
 
             def response = jiraNewIssue issue: issue, site: 'CME JIRA'
-            echo "${response}"
+            echo "${response.code}"
             echo response.successful
             echo 0
             // sleep 15
