@@ -15,9 +15,14 @@ node('Dev_Ops_2') {
                             ]
                         ]
 
-            response = jiraNewIssue issue: issue, site: 'CME JIRA'
-            echo response.successful.toString()
-            echo response.data.toString()
+            try {
+                response = jiraNewIssue issue: issue, site: 'CME JIRA'
+                echo response.successful.toString()
+                echo response.data.toString()
+            } catch (error1) {
+                echo error1
+            }
+            
             // env.BUILD_TICKET_ID = response.data.id
 
             // def updatedIssue = issue
