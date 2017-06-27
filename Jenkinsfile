@@ -8,6 +8,7 @@ node('Dev_Ops_2') {
         
         stage('Pre-Build') {
             def issue = [
+                            
                             fields: [
                                     project: [key: 'CME'],
                                     summary: "JenkinsCI: Build #${env.BUILD_NUMBER}",
@@ -15,12 +16,14 @@ node('Dev_Ops_2') {
                             ]
                         ]
 
-            def response = jiraNewIssue issue: issue, site: 'CME JIRA'
+            def response = jiraNewIssue issue: issue, site: 'CME JIRA'                    
+            echo response.successful.toString()
+            echo response.data.toString()
             sleep 5
             env.BUILD_TICKET_ID = response.data.id
 
             def updatedIssue = issue
-            updatedIssue.fields.transitions = ["id": "5"]
+            updatedIssue.transition = ["id": "5"]
 
             jiraEditIssue idOrKey: "${env.BUILD_TICKET_ID}", issue = updatedIssue
         }
