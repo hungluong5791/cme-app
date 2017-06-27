@@ -20,12 +20,12 @@ node('Dev_Ops_2') {
             def response = jiraNewIssue issue: issue, site: 'CME JIRA'
             def buildTicket = response.data
 
-            def updatedIssue = issue;
+            def updatedIssue = issue
             updatedIssue.fields.transitions = ["id": "5"]
 
             jiraEditIssue idOrKey: buildTicket.id, issue = updatedIssue
 
-            env.BUILD_TICKET_ID = buildTicket.id;
+            env.BUILD_TICKET_ID = buildTicket.id
         }
         
         stage('Checkout') {
@@ -79,7 +79,7 @@ node('Dev_Ops_2') {
                                 summary: 'JenkinsCI: Build #${env.BUILD_NUMBER}',
                                 description: 'JenkinsCI: Build #${env.BUILD_NUMBER}',
                                 customfield_10036: '${currentBuild.result}',
-                                issuetype: [id: '10011']
+                                issuetype: [id: '10011'],
                                 transitions: ["id": "5"]
                         ]
                     ]
