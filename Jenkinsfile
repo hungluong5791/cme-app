@@ -5,6 +5,12 @@ pipeline {
 
     environment {
         JIRA_SITE = 'CME JIRA'
+        JIRA_BASE_URL = 'http://10.88.96.79:8080'
+        JIRA_CREDENTIALS = 'cme-jira-credentials'
+        JIRA_PROJECT_KEY = 'CME'
+        JIRA_ISSUE_TYPE_BUILD = 10011
+        JIRA_TRANSITION_START = 11
+        JIRA_TRANSITION_FINISH = 21
     }
 
     options {
@@ -21,9 +27,9 @@ pipeline {
                 script {
                     issue = [
                         fields: [
-                            project: [key: 'CME'],
+                            project: [key: "${JIRA_PROJECT_KEY}"],
                             summary: "JenkinsCI: Build #${env.BUILD_NUMBER}",
-                            issuetype: [id: '10011']
+                            issuetype: [id: ${"JIRA_ISSUE_TYPE_BUILD"}]
                         ]
                     ]
                     response = jiraNewIssue issue: issue
@@ -31,7 +37,7 @@ pipeline {
 
                     transition =  [
                         transition: [
-                            id: '11',
+                            id: "${JIRA_TRANSITION_START}",
                         ]
                     ]
                     jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: transition
@@ -94,7 +100,26 @@ pipeline {
 
     post {
         always {
-            echo 'Always'
+            jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
+                transition: [
+                    id: "${JIRA_TRANSITION_FINISH}",
+                ]
+            ]
+
+            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+                fields: [
+                    project: [id: "${JIRA_PROJECT_KEY}"],
+                    customfield_10036: currentBuild.result,
+                    issuetype: [id: ${"JIRA_ISSUE_TYPE_BUILD"}]
+                ]
+            ]
+
+            // Workaround while waiting for jiraAttach
+            withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
+                sh 'curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H "X-Atlassian-Token: no-check" -F "file=@Jenkinsfile" ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments'
+            }
+
+            
         }
     }
 }
