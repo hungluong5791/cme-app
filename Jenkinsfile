@@ -77,9 +77,28 @@ pipeline {
         }
 
         stage('AWS Deploy Staging') {
+            environment {
+                CLUSTER="cme-devops-app"
+                SERVICE="cme-devops-app"
+                TASK_FAMILY="cme-devops-app"
+
+                DOCKER_REGISTRY="768738047170.dkr.ecr.us-east-1.amazonaws.com"
+                DOCKER_REPO="cme-devops"
+                DOCKER_TAG="latest"
+                DOCKER_IMAGE="${DOCKER_REGISTRY}/${DOCKER_REPO}:${DOCKER_TAG}"
+            }
+
             steps {
-                sh 'chmod +x deploy-aws.sh'
-                sh './deploy-aws.sh'
+                script {
+                    currentTask = sh script: "aws ecs describe-task-definition --task-definition $TASK_FAMILY --output json", returnStdout: true
+                    updatedTask = sh script: "echo ${currentTask} | jq --arg UPDATED_IMAGE ${DOCKER_IMAGE} '.taskDefinition.containerDefinitions[0].image=\$UPDATED_IMAGE' | jq '.taskDefinition|{family: .family, volumes: .volumes, containerDefinitions: .containerDefinitions}'", returnStdout: true
+
+                    sh "aws ecs register-task-definition --family $TASK_FAMILY --cli-input-json ${updatedTask}"
+                    sh "aws ecs update-service --service $SERVICE --task-definition $TASK_FAMILY --cluster $CLUSTER"
+                }
+
+                // sh 'chmod +x deploy-aws.sh'
+                // sh './deploy-aws.sh'
             }
         }
 
