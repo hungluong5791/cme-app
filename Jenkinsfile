@@ -110,7 +110,7 @@ pipeline {
                 fields: [
                     project: [id: "${JIRA_PROJECT_KEY}"],
                     customfield_10036: currentBuild.result,
-                    issuetype: [id: ${"JIRA_ISSUE_TYPE_BUILD"}]
+                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]
 
