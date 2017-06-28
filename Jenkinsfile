@@ -15,6 +15,7 @@ pipeline {
         stage('Pre-Build') {
             steps {
                 script {
+                    org.jenkinsci.plugins.permissivescriptsecurity.PermissiveWhitelist.enabled=true
                     response = jiraNewIssue issue: [
                         fields: [
                             project: [key: 'CME'],
