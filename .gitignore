@@ -27,6 +27,7 @@ bower_components
 .idea
 *.iml
 .vscode
+mochawesome-report
 
 # OS metadata
 .DS_Store
