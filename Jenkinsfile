@@ -25,7 +25,7 @@ pipeline {
                     response = jiraNewIssue issue: issue, site: 'CME JIRA'
                     env.BUILD_TICKET_ID = response.data.id
 
-                    issue.transition = ["id": "5"]
+                    issue.transition = ["id": "11"]
 
                     jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: issue, site: 'CME JIRA'
                 }
