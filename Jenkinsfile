@@ -124,10 +124,6 @@ pipeline {
             withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
                 sh "curl -H 'Content-Type: application/json' -X POST -u ${JIRA_USERNAME}:${JIRA_PASSWORD} --data @CME-RnD/report/XrayReport.json ${JIRA_BASE_URL}/rest/raven/1.0/import/execution"
             }
-
-            //need better solution
-            echo "Clean up"
-            sh 'rm -rf CME-RnD'
             
             // Workaround while waiting for jiraAttach
             withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
