@@ -14,13 +14,17 @@ pipeline {
     stages {
         stage('Pre-Build') {
             steps {
-                jiraNewIssue issue: [
-                    fields: [
-                        project: [key: 'CME'],
-                        summary: "JenkinsCI: Build #${env.BUILD_NUMBER}",
-                        issuetype: [id: '10011']
-                    ]
-                ], site: 'CME JIRA'
+                script {
+                    response = jiraNewIssue issue: [
+                        fields: [
+                            project: [key: 'CME'],
+                            summary: "JenkinsCI: Build #${env.BUILD_NUMBER}",
+                            issuetype: [id: '10011']
+                        ]
+                    ], site: 'CME JIRA'
+                    env.BUILD_TICKET_ID = response.data.id
+                }
+                echo env.BUILD_TICKET_ID
             }
 
             // env.BUILD_TICKET_ID = response.data.id
@@ -33,8 +37,9 @@ pipeline {
         
         stage('Checkout') {
             steps {
-                checkout scm
-                sh 'rm -rf reports/*'
+                echo 'Placeholder'
+                // checkout scm
+                // sh 'rm -rf reports/*'
             }
         }
 
