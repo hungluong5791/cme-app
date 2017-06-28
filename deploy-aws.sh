@@ -1,6 +1,6 @@
 #!/bin/bash
 CLUSTER="cme-devops-app"
-SERVICE="cme-app"
+SERVICE="cme-devops-app"
 TASK_FAMILY="cme-devops-app"
 
 DOCKER_REGISTRY="768738047170.dkr.ecr.us-east-1.amazonaws.com"
