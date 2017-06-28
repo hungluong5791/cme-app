@@ -47,9 +47,8 @@ pipeline {
         
         stage('Checkout') {
             steps {
-                echo 'Placeholder'
-                // checkout scm
-                // sh 'rm -rf reports/*'
+                checkout scm
+                sh 'rm -rf reports/*'
             }
         }
 
