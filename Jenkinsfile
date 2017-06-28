@@ -108,7 +108,7 @@ pipeline {
 
             jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
                 fields: [
-                    project: [id: "${JIRA_PROJECT_KEY}"],
+                    project: [key: "${JIRA_PROJECT_KEY}"],
                     customfield_10036: currentBuild.result,
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
