@@ -48,7 +48,13 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                sh 'rm -rf reports/*'
+                checkout([
+                    $class: 'GitSCM', 
+                    branches: [[name: 'xray-integrate']], 
+                    doGenerateSubmoduleConfigurations: false, 
+                    extensions: [[$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true], [$class: 'RelativeTargetDirectory', relativeTargetDir: 'CME-RnD']], 
+                    submoduleCfg: [], 
+                    userRemoteConfigs: [[credentialsId: 'ec4707cf-c32b-4b1e-a2bf-1409d60cf003', url: 'https://git.fsoft.com.vn/fsoft/CME-RnD.git']]])
             }
         }
 
@@ -97,14 +103,6 @@ pipeline {
         stage('Integration Test') {
             steps {
                 // sh 'git clone -b xray-integrate https://git.fsoft.com.vn/fsoft/CME-RnD.git --depth=1'
-                checkout([
-                    $class: 'GitSCM', 
-                    branches: [[name: 'xray-integrate']], 
-                    doGenerateSubmoduleConfigurations: false, 
-                    extensions: [[$class: 'CloneOption', noTags: false, reference: '', shallow: true]], 
-                    submoduleCfg: [], 
-                    userRemoteConfigs: [[credentialsId: 'ec4707cf-c32b-4b1e-a2bf-1409d60cf003', url: 'https://git.fsoft.com.vn/fsoft/CME-RnD.git']]])
-
                 sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-core-1.0.jar -DpomFile=libs/pom-core.xml'
                 sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-ui-1.2.jar -DpomFile=libs/pom-ui.xml'
                 sh 'cd CME-RnD && mvn clean install'
