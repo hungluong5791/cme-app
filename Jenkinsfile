@@ -106,20 +106,31 @@ pipeline {
                 ]
             ]
 
+            // Workaround while waiting for jiraAttach
+            withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
+                // sh "find reports/ -regextype posix-extended -regex ".*\.(html|xls)" -exec echo curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \;"
+                sh "find reports/ -regextype posix-extended -regex '.*\\.(html|xlsx)' -exec echo curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
+            }
+        }
+
+        success {
             jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
                 fields: [
                     project: [key: "${JIRA_PROJECT_KEY}"],
-                    customfield_10036: currentBuild.result,
+                    customfield_10036: 'SUCCESS',
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]
+        }
 
-            // Workaround while waiting for jiraAttach
-            echo "${currentBuild}"
-            withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
-                // sh "find reports/ -regextype posix-extended -regex ".*\.(html|xls)" -exec echo curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \;"
-                sh "find reports/ -regextype posix-extended -regex '.*\\.(html|xls)' -exec echo curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
-            }
+        failure {
+            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+                fields: [
+                    project: [key: "${JIRA_PROJECT_KEY}"],
+                    customfield_10036: 'FAILURE',
+                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
+                ]
+            ]
         }
     }
 }
