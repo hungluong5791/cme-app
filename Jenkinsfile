@@ -106,6 +106,14 @@ pipeline {
                 ]
             ]
 
+            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+                fields: [
+                    project: [key: "${JIRA_PROJECT_KEY}"],
+                    customfield_10036: [value: currentBuild.result],
+                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
+                ]
+            ]
+
             // Workaround while waiting for jiraAttach
             withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
                 // sh "find reports/ -regextype posix-extended -regex ".*\.(html|xls)" -exec echo curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \;"
@@ -113,15 +121,9 @@ pipeline {
             }
         }
 
-        success {
-            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
-                fields: [
-                    project: [key: "${JIRA_PROJECT_KEY}"],
-                    customfield_10036: [value: 'SUCCESS'],
-                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
-                ]
-            ]
-        }
+        // success {
+            
+        // }
 
         failure {
             jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
