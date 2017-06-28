@@ -116,7 +116,7 @@ pipeline {
 
             // Workaround while waiting for jiraAttach
             withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
-                sh 'curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H "X-Atlassian-Token: no-check" -F "file=@Jenkinsfile" ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments'
+                sh "curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@Jenkinsfile' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments"
             }
 
             
