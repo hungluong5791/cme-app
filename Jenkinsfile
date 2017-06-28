@@ -14,14 +14,13 @@ pipeline {
     stages {
         stage('Pre-Build') {
             steps {
-                issue = [
+                jiraNewIssue issue: [
                     fields: [
                         project: [key: 'CME'],
                         summary: "JenkinsCI: Build #${env.BUILD_NUMBER}",
                         issuetype: [id: '10011']
                     ]
-                ]
-                jiraNewIssue issue: issue, site: 'CME JIRA'
+                ], site: 'CME JIRA'
             }
 
             // env.BUILD_TICKET_ID = response.data.id
@@ -41,6 +40,7 @@ pipeline {
 
         stage('Unit test') {
             steps {
+                echo 'Placeholder'
                 // ansiColor('xterm') {
                 //     sh "npm install && MOCHAWESOME_REPORTDIR=reports MOCHAWESOME_REPORTFILENAME=mocha-report MOCHAWESOME_REPORTPAGETITLE='Build #${env.BUILD_NUMBER}' npm test"
                 // }
@@ -49,6 +49,7 @@ pipeline {
 
         stage('Docker Build') {
             steps {
+                echo 'Placeholder'
                 // ansiColor('xterm') {
                 //     app = docker.build("cme-devops")
                 // }
@@ -57,6 +58,7 @@ pipeline {
 
         stage('Docker Push') {
             steps {
+                echo 'Placeholder'
                 // docker.withRegistry('https://768738047170.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:cme-devops-aws-credentials') {
                 //     app.push('latest')
                 // }
@@ -65,6 +67,7 @@ pipeline {
 
         stage('AWS Deploy Staging') {
             steps {
+                echo 'Placeholder'
                 // sh 'chmod +x deploy-aws.sh'
                 // sh './deploy-aws.sh'
             }
@@ -72,6 +75,7 @@ pipeline {
 
         stage('Integration Test') {
             steps {
+                echo 'Placeholder'
                 // sleep 13
                 // sh 'cd CME_DEMO_DEVOPS_AUTOTEST && mvn clean install && chmod +x drivers/chromedriver_linux64 && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
                 // sh 'mv CME_DEMO_DEVOPS_AUTOTEST/reports/* reports/'
