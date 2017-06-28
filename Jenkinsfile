@@ -104,16 +104,16 @@ pipeline {
 
         stage('Integration Test') {
             steps {
-                echo 'Checkout code'
-                sh 'git clone -b xray-integrate https://git.fsoft.com.vn/fsoft/CME-RnD.git --depth=1'
-                sh 'cd CME-RnD'
-                sh 'mvn install:install-file -Dfile=libs/z8-art-core-1.0.jar -DpomFile=libs/pom-core.xml'
-                sh 'mvn install:install-file -Dfile=libs/z8-art-ui-1.2.jar -DpomFile=libs/pom-ui.xml'
-                sh 'mvn clean install'
-                sh 'chmod +x drivers/chromedriver_linux64'
-                sh 'java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
-                //exit folder
-                sh 'cd ..'
+                // echo 'Checkout code'
+                // sh 'git clone -b xray-integrate https://git.fsoft.com.vn/fsoft/CME-RnD.git --depth=1'
+                // sh 'cd CME-RnD'
+                // sh 'mvn install:install-file -Dfile=libs/z8-art-core-1.0.jar -DpomFile=libs/pom-core.xml'
+                // sh 'mvn install:install-file -Dfile=libs/z8-art-ui-1.2.jar -DpomFile=libs/pom-ui.xml'
+                // sh 'mvn clean install'
+                // sh 'chmod +x drivers/chromedriver_linux64'
+                // sh 'java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
+                // //exit folder
+                // sh 'cd ..'
             }
         }
     }
