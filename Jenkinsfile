@@ -48,42 +48,34 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                // sh 'rm -rf reports/*'
+                sh 'rm -rf reports/*'
             }
         }
 
         stage('Unit test') {
             steps {
-                echo 'Placeholder'
-                // ansiColor('xterm') {
-                //     sh "npm install && MOCHAWESOME_REPORTDIR=reports MOCHAWESOME_REPORTFILENAME=mocha-report MOCHAWESOME_REPORTPAGETITLE='Build #${env.BUILD_NUMBER}' npm test"
-                // }
+                sh "npm install && MOCHAWESOME_REPORTDIR=reports MOCHAWESOME_REPORTFILENAME=mocha-report MOCHAWESOME_REPORTPAGETITLE='Build #${env.BUILD_NUMBER}' npm test"
             }
         }
 
         stage('Docker Build') {
             steps {
-                echo 'Placeholder'
-                // ansiColor('xterm') {
-                //     app = docker.build("cme-devops")
-                // }
+                docker.build("cme-devops")
             }
         }
 
         stage('Docker Push') {
             steps {
-                echo 'Placeholder'
-                // docker.withRegistry('https://768738047170.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:cme-devops-aws-credentials') {
-                //     app.push('latest')
-                // }
+                docker.withRegistry('https://768738047170.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:cme-devops-aws-credentials') {
+                    docker.image('cme-devops').push('latest')
+                }
             }
         }
 
         stage('AWS Deploy Staging') {
             steps {
-                echo 'Placeholder'
-                // sh 'chmod +x deploy-aws.sh'
-                // sh './deploy-aws.sh'
+                sh 'chmod +x deploy-aws.sh'
+                sh './deploy-aws.sh'
             }
         }
 
@@ -107,8 +99,7 @@ pipeline {
 
             // Workaround while waiting for jiraAttach
             withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
-                // sh "find reports/ -regextype posix-extended -regex '.*\\.(html|xlsx)' -exec curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
-                sh "find ./reports/ -regextype posix-extended -regex '.*\\.(txt)' -exec curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
+                sh "find ./reports/ -regextype posix-extended -regex '.*\\.(html|xlxs)' -exec curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
             }
         }
 
