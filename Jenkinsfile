@@ -104,10 +104,16 @@ pipeline {
 
         stage('Integration Test') {
             steps {
-                echo 'Placeholder'
-                // sleep 13
-                // sh 'cd CME_DEMO_DEVOPS_AUTOTEST && mvn clean install && chmod +x drivers/chromedriver_linux64 && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
-                // sh 'mv CME_DEMO_DEVOPS_AUTOTEST/reports/* reports/'
+                echo 'Checkout code'
+                sh 'git clone -b xray-integrate https://git.fsoft.com.vn/fsoft/CME-RnD.git --depth=1'
+                sh 'cd CME-RnD'
+                sh 'mvn install:install-file -Dfile=libs/z8-art-core-1.0.jar -DpomFile=libs/pom-core.xml'
+                sh 'mvn install:install-file -Dfile=libs/z8-art-ui-1.2.jar -DpomFile=libs/pom-ui.xml'
+                sh 'mvn clean install'
+                sh 'chmod +x drivers/chromedriver_linux64'
+                sh 'java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
+                //exit folder
+                sh 'cd ..'
             }
         }
     }
@@ -134,7 +140,16 @@ pipeline {
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]
+        }            
+
+        echo "Upload test result to Jira"
+        withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
+            sh "curl -H 'Content-Type: application/json' -X POST -u ${JIRA_USERNAME}:${JIRA_PASSWORD} --data @CME-RnD/report/XrayReport.json ${JIRA_BASE_URL}/rest/raven/1.0/import/execution"
         }
+
+        //need better solution
+        echo "Clean up"
+        sh 'rm -rf CME-RnD'            
 
         failure {
             jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
