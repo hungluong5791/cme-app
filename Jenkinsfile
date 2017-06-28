@@ -105,12 +105,12 @@ pipeline {
         stage('Integration Test') {
             steps {
                 echo 'Checkout code'
-                sh 'git clone -b xray-integrate https://git.fsoft.com.vn/fsoft/CME-RnD.git --depth=1'
-                sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-core-1.0.jar -DpomFile=libs/pom-core.xml'
-                sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-ui-1.2.jar -DpomFile=libs/pom-ui.xml'
-                sh 'cd CME-RnD && mvn clean install'
-                sh 'cd CME-RnD && chmod +x drivers/chromedriver_linux64'
-                sh 'cd CME-RnD && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
+                // sh 'git clone -b xray-integrate https://git.fsoft.com.vn/fsoft/CME-RnD.git --depth=1'
+                // sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-core-1.0.jar -DpomFile=libs/pom-core.xml'
+                // sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-ui-1.2.jar -DpomFile=libs/pom-ui.xml'
+                // sh 'cd CME-RnD && mvn clean install'
+                // sh 'cd CME-RnD && chmod +x drivers/chromedriver_linux64'
+                // sh 'cd CME-RnD && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
             }
         }
     }
@@ -123,6 +123,15 @@ pipeline {
                 ]
             ]
 
+            echo "Upload test result to Jira"
+            withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
+                sh "curl -H 'Content-Type: application/json' -X POST -u ${JIRA_USERNAME}:${JIRA_PASSWORD} --data @CME-RnD/report/XrayReport.json ${JIRA_BASE_URL}/rest/raven/1.0/import/execution"
+            }
+
+            //need better solution
+            echo "Clean up"
+            sh 'rm -rf CME-RnD'
+            
             // Workaround while waiting for jiraAttach
             withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
                 sh "find ./reports/ -regextype posix-extended -regex '.*\\.(html|xlxs)' -exec curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
@@ -138,15 +147,6 @@ pipeline {
                 ]
             ]
         }            
-
-        echo "Upload test result to Jira"
-        withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
-            sh "curl -H 'Content-Type: application/json' -X POST -u ${JIRA_USERNAME}:${JIRA_PASSWORD} --data @CME-RnD/report/XrayReport.json ${JIRA_BASE_URL}/rest/raven/1.0/import/execution"
-        }
-
-        //need better solution
-        echo "Clean up"
-        sh 'rm -rf CME-RnD'            
 
         failure {
             jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
