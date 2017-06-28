@@ -91,7 +91,8 @@ pipeline {
             steps {
                 script {
                     currentTask = sh script: "aws ecs describe-task-definition --task-definition $TASK_FAMILY --output json", returnStdout: true
-                    updatedTask = sh script: "echo ${currentTask} | jq --arg UPDATED_IMAGE ${DOCKER_IMAGE} '.taskDefinition.containerDefinitions[0].image=\$UPDATED_IMAGE' | jq '.taskDefinition|{family: .family, volumes: .volumes, containerDefinitions: .containerDefinitions}'", returnStdout: true
+                    echo currentTask
+                    updatedTask = sh script: "jq --arg UPDATED_IMAGE ${DOCKER_IMAGE} '.taskDefinition.containerDefinitions[0].image=\$UPDATED_IMAGE' | jq '.taskDefinition|{family: .family, volumes: .volumes, containerDefinitions: .containerDefinitions}' ${currentTask}", returnStdout: true
 
                     sh "aws ecs register-task-definition --family $TASK_FAMILY --cli-input-json ${updatedTask}"
                     sh "aws ecs update-service --service $SERVICE --task-definition $TASK_FAMILY --cluster $CLUSTER"
