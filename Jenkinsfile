@@ -15,27 +15,21 @@ pipeline {
         stage('Pre-Build') {
             steps {
                 script {
-                    response = jiraNewIssue issue: [
+                    issue = [
                         fields: [
                             project: [key: 'CME'],
                             summary: "JenkinsCI: Build #${env.BUILD_NUMBER}",
                             issuetype: [id: '10011']
                         ]
-                    ], site: 'CME JIRA'
+                    ]
+                    response = jiraNewIssue issue: issue, site: 'CME JIRA'
                     env.BUILD_TICKET_ID = response.data.id
-                    jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
-                        update: [],
-                        transition: ["id": "5"]
-                    ], site: 'CME JIRA'
+
+                    issue.transition = ["id": "5"]
+
+                    jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: issue, site: 'CME JIRA'
                 }
             }
-
-            // env.BUILD_TICKET_ID = response.data.id
-
-            // def updatedIssue = issue
-            // updatedIssue.transition = ["id": "5"]
-
-            // jiraEditIssue idOrKey: "${env.BUILD_TICKET_ID}", issue = updatedIssue
         }
         
         stage('Checkout') {
