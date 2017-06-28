@@ -60,14 +60,18 @@ pipeline {
 
         stage('Docker Build') {
             steps {
-                docker.build("cme-devops")
+                script {
+                    docker.build("cme-devops")
+                }
             }
         }
 
         stage('Docker Push') {
             steps {
-                docker.withRegistry('https://768738047170.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:cme-devops-aws-credentials') {
-                    docker.image('cme-devops').push('latest')
+                script {
+                    docker.withRegistry('https://768738047170.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:cme-devops-aws-credentials') {
+                        docker.image('cme-devops').push('latest')
+                    }
                 }
             }
         }
