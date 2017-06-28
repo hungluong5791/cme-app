@@ -3,6 +3,10 @@ pipeline {
         label 'Dev_Ops_2'
     }
 
+    environment {
+        JIRA_SITE = 'CME JIRA'
+    }
+
     options {
         buildDiscarder(logRotator(numToKeepStr: '10'))
         skipDefaultCheckout()
@@ -22,12 +26,15 @@ pipeline {
                             issuetype: [id: '10011']
                         ]
                     ]
-                    response = jiraNewIssue issue: issue, site: 'CME JIRA'
+                    response = jiraNewIssue issue: issue
                     env.BUILD_TICKET_ID = response.data.id
 
-                    issue.transition = ["id": "11"]
-
-                    jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: issue, site: 'CME JIRA'
+                    transition =  [
+                        transition: [
+                            id: '11',
+                        ]
+                    ]
+                    jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: transition
                 }
             }
         }
