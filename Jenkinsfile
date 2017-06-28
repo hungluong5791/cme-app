@@ -47,44 +47,39 @@ pipeline {
         
         stage('Checkout') {
             steps {
-                echo 'Placeholder'
-                // checkout scm
-                // sh 'rm -rf reports/*'
+                checkout scm
+                sh 'rm -rf reports/*'
             }
         }
 
         stage('Unit test') {
             steps {
-                echo 'Placeholder'
-                // ansiColor('xterm') {
-                //     sh "npm install && MOCHAWESOME_REPORTDIR=reports MOCHAWESOME_REPORTFILENAME=mocha-report MOCHAWESOME_REPORTPAGETITLE='Build #${env.BUILD_NUMBER}' npm test"
-                // }
+                sh "npm install && MOCHAWESOME_REPORTDIR=reports MOCHAWESOME_REPORTFILENAME=mocha-report MOCHAWESOME_REPORTPAGETITLE='Build #${env.BUILD_NUMBER}' npm test"
             }
         }
 
         stage('Docker Build') {
             steps {
-                echo 'Placeholder'
-                // ansiColor('xterm') {
-                //     app = docker.build("cme-devops")
-                // }
+                script {
+                    docker.build("cme-devops")
+                }
             }
         }
 
         stage('Docker Push') {
             steps {
-                echo 'Placeholder'
-                // docker.withRegistry('https://768738047170.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:cme-devops-aws-credentials') {
-                //     app.push('latest')
-                // }
+                script {
+                    docker.withRegistry('https://768738047170.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:cme-devops-aws-credentials') {
+                        docker.image('cme-devops').push('latest')
+                    }
+                }
             }
         }
 
         stage('AWS Deploy Staging') {
             steps {
-                echo 'Placeholder'
-                // sh 'chmod +x deploy-aws.sh'
-                // sh './deploy-aws.sh'
+                sh 'chmod +x deploy-aws.sh'
+                sh './deploy-aws.sh'
             }
         }
 
@@ -112,28 +107,39 @@ pipeline {
                 ]
             ]
 
+            // Workaround while waiting for jiraAttach
+            withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
+                sh "find ./reports/ -regextype posix-extended -regex '.*\\.(html|xlxs)' -exec curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
+            }
+        }
+
+        success {
             jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
                 fields: [
                     project: [key: "${JIRA_PROJECT_KEY}"],
-                    customfield_10036: currentBuild.result,
+                    customfield_10036: [value: 'SUCCESS'],
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]
+        }            
 
-            // Workaround while waiting for jiraAttach
-            echo "${currentBuild.result}"
-            withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
-                sh "curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@Jenkinsfile' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments"
-            }
+        echo "Upload test result to Jira"
+        withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
+            sh "curl -H 'Content-Type: application/json' -X POST -u ${JIRA_USERNAME}:${JIRA_PASSWORD} --data @CME-RnD/report/XrayReport.json ${JIRA_BASE_URL}/rest/raven/1.0/import/execution"
+        }
 
-            echo "Upload test result to Jira"
-            withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
-                sh "curl -H 'Content-Type: application/json' -X POST -u ${JIRA_USERNAME}:${JIRA_PASSWORD} --data @CME-RnD/report/XrayReport.json ${JIRA_BASE_URL}/rest/raven/1.0/import/execution"
-            }
+        //need better solution
+        echo "Clean up"
+        sh 'rm -rf CME-RnD'            
 
-            //need better solution
-            echo "Clean up"
-            sh 'rm -rf CME-RnD'            
+        failure {
+            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+                fields: [
+                    project: [key: "${JIRA_PROJECT_KEY}"],
+                    customfield_10036: [value: 'FAILURE'],
+                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
+                ]
+            ]
         }
     }
 }
