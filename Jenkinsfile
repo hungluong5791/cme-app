@@ -48,7 +48,7 @@ pipeline {
         stage('Checkout') {
             steps {
                 checkout scm
-                sh 'rm -rf reports/*'
+                // sh 'rm -rf reports/*'
             }
         }
 
