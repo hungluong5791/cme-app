@@ -50,9 +50,9 @@ pipeline {
                 checkout scm
                 checkout([
                     $class: 'GitSCM', 
-                    branches: [[name: 'xray-integrate']], 
+                    branches: [[name: 'xray-integrate']],                    
                     doGenerateSubmoduleConfigurations: false, 
-                    extensions: [[$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true], [$class: 'RelativeTargetDirectory', relativeTargetDir: 'CME-RnD']], 
+                    extensions: [[$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true], [$class: 'RelativeTargetDirectory', relativeTargetDir: 'CME-RnD'],[$class: 'CleanBeforeCheckout']], 
                     submoduleCfg: [], 
                     userRemoteConfigs: [[credentialsId: 'ec4707cf-c32b-4b1e-a2bf-1409d60cf003', url: 'https://git.fsoft.com.vn/fsoft/CME-RnD.git']]])
             }
