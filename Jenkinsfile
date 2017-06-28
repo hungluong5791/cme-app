@@ -15,7 +15,6 @@ pipeline {
         stage('Pre-Build') {
             steps {
                 script {
-                    org.jenkinsci.plugins.permissivescriptsecurity.PermissiveWhitelist.enabled=true
                     response = jiraNewIssue issue: [
                         fields: [
                             project: [key: 'CME'],
@@ -24,8 +23,10 @@ pipeline {
                         ]
                     ], site: 'CME JIRA'
                     env.BUILD_TICKET_ID = response.data.id
+                    jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue = [
+                        transition: ["id": "5"]
+                    ]
                 }
-                echo env.BUILD_TICKET_ID
             }
 
             // env.BUILD_TICKET_ID = response.data.id
