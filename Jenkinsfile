@@ -29,7 +29,7 @@ pipeline {
                         fields: [
                             project: [key: "${JIRA_PROJECT_KEY}"],
                             summary: "JenkinsCI: Build #${env.BUILD_NUMBER}",
-                            assignee: [name: "JenkinsCI"]
+                            assignee: [name: "JenkinsCI"],
                             issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                         ]
                     ]
