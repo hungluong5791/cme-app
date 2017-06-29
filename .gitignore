@@ -27,8 +27,11 @@ bower_components
 .idea
 *.iml
 .vscode
-mochawesome-report
 
 # OS metadata
 .DS_Store
 Thumbs.db
+
+# Reports
+mochawesome-report
+reports
