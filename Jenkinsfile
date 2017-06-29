@@ -56,6 +56,7 @@ pipeline {
                     extensions: [[$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true], [$class: 'RelativeTargetDirectory', relativeTargetDir: 'CME-RnD'],[$class: 'CleanBeforeCheckout']], 
                     submoduleCfg: [], 
                     userRemoteConfigs: [[credentialsId: 'ec4707cf-c32b-4b1e-a2bf-1409d60cf003', url: 'https://git.fsoft.com.vn/fsoft/CME-RnD.git']]])
+                sh 'rm -rf reports/*'
             }
         }
 
@@ -108,7 +109,7 @@ pipeline {
                 sh 'cd CME-RnD && mvn clean install'
                 sh 'cd CME-RnD && chmod +x drivers/chromedriver_linux64'
                 sh 'cd CME-RnD && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
-                sh 'mv CME-RnD/reports/* reports/'
+                sh 'mv -t reports CME-RnD/reports/*.xlsx CME-RnD/reports/*.html CME-RnD/reports/*.json'
             }
         }
     }
@@ -123,7 +124,7 @@ pipeline {
 
             echo "Upload test result to Jira"
             withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
-                sh "curl -H 'Content-Type: application/json' -X POST -u ${JIRA_USERNAME}:${JIRA_PASSWORD} --data @CME-RnD/reports/XrayReport.json ${JIRA_BASE_URL}/rest/raven/1.0/import/execution"
+                sh "curl -H 'Content-Type: application/json' -X POST -u ${JIRA_USERNAME}:${JIRA_PASSWORD} --data @reports/XrayReport.json ${JIRA_BASE_URL}/rest/raven/1.0/import/execution"
             }
             
             // Workaround while waiting for jiraAttach
