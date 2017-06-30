@@ -142,6 +142,7 @@ pipeline {
                 # TEST EXECUTION SUMMARY
 
                 | Test Case | Status |
+                | ----------|--------|
                 """
                 for (xrayTest in xrayTests) {
                     def testCaseId = xrayTest.testKey
