@@ -50,7 +50,9 @@ pipeline {
         }
 
         stage('Rerouting Load Balancer') {
-            sleep 60
+            steps {
+                sleep 60
+            }
         }
 
         stage('AWS Deploy Production') {
