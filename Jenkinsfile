@@ -139,10 +139,9 @@ pipeline {
                 def xrayReport = readJSON file: 'reports/XrayReport.json'
                 def xrayTests = xrayReport.tests
                 env.testCasesExecutionSummary = """
-                # TEST EXECUTION SUMMARY
+                **TEST EXECUTION SUMMARY**
 
-                | Test Case | Status |
-                | ----------|--------|
+                | **Test Case** | **Status** |
                 """
                 for (xrayTest in xrayTests) {
                     def testCaseId = xrayTest.testKey
