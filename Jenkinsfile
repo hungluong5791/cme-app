@@ -149,7 +149,7 @@ pipeline {
                     def testCaseUrl = env.JIRA_BASE_URL + "/browse/${testCaseId}"
                     def testCaseStatus = xrayTest.status
 
-                    testRunSummary = "| [${testCaseId}|${testCaseUrl}] | ${testCaseStatus} |"
+                    testRunSummary = "| [${testCaseId}\|${testCaseUrl}] | ${testCaseStatus} | \n"
                     env.testCasesExecutionSummary += testRunSummary
                 }
             }
