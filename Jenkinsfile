@@ -138,7 +138,7 @@ pipeline {
             script {
                 def xrayReport = readJSON file: 'reports/XrayReport.json'
                 def xrayTests = xrayReport.tests
-                def testCasesExecutionSummary = """
+                env.testCasesExecutionSummary = """
                 TEST EXECUTION SUMMARY
 
                 """
@@ -148,17 +148,17 @@ pipeline {
                     def testCaseStatus = xrayTest.status
 
                     testRunSummary = "[${testCaseId}|${testCaseUrl}]: ${testCaseStatus} \n"
-                    testCasesExecutionSummary += testRunSummary
+                    env.testCasesExecutionSummary += testRunSummary
                 }
+            }
 
-                jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
                     fields: [
                         project: [key: "${JIRA_PROJECT_KEY}"],
-                        description: "${testCasesExecutionSummary}",
+                        description: "${env.testCasesExecutionSummary}",
                         issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                     ]
-                ]    
-            }
+                ]
         }
 
         success {
@@ -169,7 +169,7 @@ pipeline {
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]
-        }            
+        }
 
         failure {
             jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
