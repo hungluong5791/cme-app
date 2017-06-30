@@ -150,10 +150,18 @@ pipeline {
                 | *Test Case* | *Status* |
                 """
                 def mochaReport = readJSON file: 'reports/report.json'
-                def mochaTests = mochaReport.failures.addAll(mochaReport.passes)
-                for (mochaTest in mochaTests) {
+                def mochaFailures = mochaReport.failures
+                def mochaPasses = mochaReport.passes
+                
+                for (mochaTest in mochaFailures) {
                     def testCaseTitle = mochaTest.fullTitle
                     def testCaseStatus = "FAIL"
+                    testRunSummary = "| ${testCaseTitle} | ${testCaseStatus} | \n"
+                    env.testCasesExecutionSummary += testRunSummary
+                }
+                for (mochaTest in mochaPasses) {
+                    def testCaseTitle = mochaTest.fullTitle
+                    def testCaseStatus = "PASS"
                     testRunSummary = "| ${testCaseTitle} | ${testCaseStatus} | \n"
                     env.testCasesExecutionSummary += testRunSummary
                 }
