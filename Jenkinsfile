@@ -71,23 +71,23 @@ pipeline {
             }
         }
         
-        // stage('SonarQube Analysis') {
-        //     environment {
-        //         SONAR_HOME = tool('Sonar-Dev')
-        //         SONAR_ENV = 'Sonar local'
-        //         SONAR_PROJECT_NAME = 'CME_DEMO'
-        //         SONAR_PROJECT_KEY = 'CME_DEMO'
-        //         SONAR_PROJECT_VERSION = '1.0'
-        //         SONAR_SOURCE = "${env.WORKSPACE}"
-        //         SONAR_SCM_DISABLED = 'true'
-        //     }
+        stage('SonarQube Analysis') {
+            environment {
+                SONAR_HOME = tool('Sonar-Dev')
+                SONAR_ENV = 'Sonar'
+                SONAR_PROJECT_NAME = 'CME_DEMO'
+                SONAR_PROJECT_KEY = 'CME_DEMO'
+                SONAR_PROJECT_VERSION = '1.0'
+                SONAR_SOURCE = "${env.WORKSPACE}"
+                SONAR_SCM_DISABLED = 'true'
+            }
 
-        //     steps {
-        //         withSonarQubeEnv("${SONAR_ENV}") {
-        //             sh "${SONAR_HOME}/bin/sonar-scanner -Dsonar.projectName=${SONAR_PROJECT_NAME} -Dsonar.projectVersion=${SONAR_PROJECT_KEY} -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.sources=${SONAR_SOURCE} -Dsonar.scm.disabled=${SONAR_SCM_DISABLED}"
-        //         }
-        //     }
-        // }
+            steps {
+                withSonarQubeEnv("${SONAR_ENV}") {
+                    sh "${SONAR_HOME}/bin/sonar-scanner -Dsonar.projectName=${SONAR_PROJECT_NAME} -Dsonar.projectVersion=${SONAR_PROJECT_KEY} -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.sources=${SONAR_SOURCE} -Dsonar.scm.disabled=${SONAR_SCM_DISABLED}"
+                }
+            }
+        }
 
         stage('Docker Build') {
             steps {
@@ -223,9 +223,9 @@ pipeline {
 
             <p>Status: SUCCESS</p>
 
-            Please find attached the Log and Test Reports for this build.
+            <p>Please find attached the Log and Test Reports for this build.</p>
             
-            To promote this build to Production please visit: http://10.88.96.73:8081/jenkins/job/CME_DevOps_Demo_Production/
+            <p>To promote this build to Production please visit: http://10.88.96.73:8081/jenkins/job/CME_DevOps_Demo_Production/</p>
             """, mimeType: 'text/html', subject: "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}", to: "hunglk1@fsoft.com.vn", attachLog: true, attachmentsPattern: "reports/*"
         }
 
