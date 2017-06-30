@@ -14,7 +14,6 @@ pipeline {
     }
 
     options {
-        // buildDiscarder(logRotator(numToKeepStr: '10'))
         skipDefaultCheckout()
         timeout(time: 1, unit: 'HOURS')
         timestamps()
@@ -29,7 +28,11 @@ pipeline {
                     issue = [
                         fields: [
                             project: [key: "${JIRA_PROJECT_KEY}"],
-                            summary: "JenkinsCI: Build #${env.BUILD_NUMBER}",
+                            summary: "[JenkinsCI][PRODUCTION] Build #${env.BUILD_NUMBER}",
+                            labels: [
+                                "PRODUCTION",
+                            ],
+                            // assignee: [name: "JenkinsCI"],
                             issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                         ]
                     ]
@@ -46,7 +49,11 @@ pipeline {
             }
         }
 
-        stage('AWS Deploy Staging') {
+        stage('Rerouting Load Balancer') {
+            sleep 60
+        }
+
+        stage('AWS Deploy Production') {
             environment {
                 CLUSTER="cme-devops-app"
                 SERVICE="cme-devops-app"
@@ -63,62 +70,16 @@ pipeline {
                 sh './deploy-aws.sh'
             }
         }
-
-        stage('Integration Test') {
-            steps {
-                sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-core-1.0.jar -DpomFile=libs/pom-core.xml'
-                sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-ui-1.2.jar -DpomFile=libs/pom-ui.xml'
-                sh 'cd CME-RnD && mvn clean install'
-                sh 'cd CME-RnD && chmod +x drivers/chromedriver_linux64'
-                sh 'cd CME-RnD && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
-                sh 'mv -t reports CME-RnD/reports/*.xlsx CME-RnD/reports/*.html CME-RnD/reports/*.json'
-            }
-        }
     }
 
     post {
         always {
+            // Mark Build as Done
             jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
                 transition: [
                     id: "${JIRA_TRANSITION_FINISH}",
                 ]
             ]
-
-            echo "Upload test result to Jira"
-            withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
-                sh "curl -H 'Content-Type: application/json' -X POST -u ${JIRA_USERNAME}:${JIRA_PASSWORD} --data @reports/XrayReport.json ${JIRA_BASE_URL}/rest/raven/1.0/import/execution"
-            }
-            
-            // Workaround while waiting for jiraAttach
-            withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
-                sh "find ./reports/ -regextype posix-extended -regex '.*\\.(html|xlsx)' -exec curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
-            }
-
-            script {
-                def xrayReport = readJSON file: 'reports/XrayReport.json'
-                def xrayTests = xrayReport.tests
-                env.testCasesExecutionSummary = """
-                *INTEGRATION TEST EXECUTION SUMMARY*
-
-                | *Test Case* | *Status* |
-                """
-                for (xrayTest in xrayTests) {
-                    def testCaseId = xrayTest.testKey
-                    def testCaseUrl = env.JIRA_BASE_URL + "/browse/${testCaseId}"
-                    def testCaseStatus = xrayTest.status
-
-                    testRunSummary = "| [${testCaseId}|${testCaseUrl}] | ${testCaseStatus} | \n"
-                    env.testCasesExecutionSummary += testRunSummary
-                }
-            }
-
-            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
-                    fields: [
-                        project: [key: "${JIRA_PROJECT_KEY}"],
-                        description: "${env.testCasesExecutionSummary}",
-                        issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
-                    ]
-                ]
         }
 
         success {
@@ -133,11 +94,11 @@ pipeline {
             emailext body: """
             <p>Build URL: ${env.BUILD_URL}</p>
 
-            <p>Status: ${currentBuild.result}</p>
+            <p>Status: SUCCESS</p>
 
-            Please find attached the Log and Test Reports for this build.
+            <p>Please find attached the Log and Test Reports for this build.</p>
             
-            To promote this build to Production please visit: http://10.88.96.73:8081/jenkins/job/CME_DevOps_Demo_Production/
+            <p>To promote this build to Production please visit: http://10.88.96.73:8081/jenkins/job/CME_DevOps_Demo_Production/</p>
             """, mimeType: 'text/html', subject: "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}", to: "hunglk1@fsoft.com.vn", attachLog: true, attachmentsPattern: "reports/*"
         }
 
@@ -149,6 +110,15 @@ pipeline {
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]
+
+            emailext body: """
+            <p>Build URL: ${env.BUILD_URL}</p>
+
+            <p>Status: FAILURE</p>
+
+            Please find attached the Log and Test Reports for this build.
+
+            """, mimeType: 'text/html', subject: "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}", to: "hunglk1@fsoft.com.vn", attachLog: true, attachmentsPattern: "reports/*"
         }
     }
 }
