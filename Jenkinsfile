@@ -70,6 +70,24 @@ pipeline {
                 sh 'mv report.json reports'
             }
         }
+        
+        stage('SonarQube Analysis') {
+            environment {
+                SONAR_HOME = tool('Sonar-Dev')
+                SONAR_ENV = 'Sonar local'
+                SONAR_PROJECT_NAME = 'CME_DEMO'
+                SONAR_PROJECT_KEY = 'CME_DEMO'
+                SONAR_PROJECT_VERSION = '1.0'
+                SONAR_SOURCE = "${env.WORKSPACE}"
+                SONAR_SCM_DISABLED = 'true'
+            }
+
+            steps {
+                withSonarQubeEnv("${SONAR_ENV}") {
+                    sh "${SONAR_HOME}/bin/sonar-scanner -Dsonar.projectName=${SONAR_PROJECT_NAME} -Dsonar.projectVersion=${SONAR_PROJECT_KEY} -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.sources=${SONAR_SOURCE} -Dsonar.scm.disabled=${SONAR_SCM_DISABLED}"
+                }
+            }
+        }
 
         stage('Docker Build') {
             steps {
@@ -138,11 +156,7 @@ pipeline {
             //     sh "find ./reports/ -regextype posix-extended -regex '.*\\.(html|xlsx)' -exec curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
             // }
 
-            
-        }
-
-        success {
-            // Include build details in issue description
+            // Include test reports in issue description
             script {
                 env.testCasesExecutionSummary = """
                 *UNIT TEST EXECUTION SUMMARY*
@@ -189,8 +203,17 @@ pipeline {
             jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
                 fields: [
                     project: [key: "${JIRA_PROJECT_KEY}"],
-                    customfield_10036: [value: 'SUCCESS'],
                     description: "${env.testCasesExecutionSummary}",
+                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
+                ]
+            ]
+        }
+
+        success {
+            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+                fields: [
+                    project: [key: "${JIRA_PROJECT_KEY}"],
+                    customfield_10036: [value: 'SUCCESS'],
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]
@@ -201,7 +224,6 @@ pipeline {
                 fields: [
                     project: [key: "${JIRA_PROJECT_KEY}"],
                     customfield_10036: [value: 'FAILURE'],
-                    description: "Build failed at stage ${env.STAGE_NAME}",
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]

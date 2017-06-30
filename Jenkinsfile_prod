@@ -129,6 +129,16 @@ pipeline {
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]
+
+            emailext body: """
+            <p>Build URL: ${env.BUILD_URL}</p>
+
+            <p>Status: ${currentBuild.result}</p>
+
+            Please find attached the Log and Test Reports for this build.
+            
+            To promote this build to Production please visit: http://10.88.96.73:8081/jenkins/job/CME_DevOps_Demo_Production/
+            """, mimeType: 'text/html', subject: "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}", to: "hunglk1@fsoft.com.vn", attachLog: true, attachmentsPattern: "reports/*"
         }
 
         failure {
