@@ -134,10 +134,14 @@ pipeline {
             }
             
             // Workaround while waiting for jiraAttach
-            withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
-                sh "find ./reports/ -regextype posix-extended -regex '.*\\.(html|xlsx)' -exec curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
-            }
+            // withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
+            //     sh "find ./reports/ -regextype posix-extended -regex '.*\\.(html|xlsx)' -exec curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
+            // }
 
+            
+        }
+
+        success {
             // Include build details in issue description
             script {
                 env.testCasesExecutionSummary = """
@@ -146,8 +150,8 @@ pipeline {
                 | *Test Case* | *Status* |
                 """
                 def mochaReport = readJSON file: 'reports/report.json'
-                mocharTests = mochaReport.failures.addAll(mochaReport.passes)
-                for (mochaTest in mocharTests) {
+                def mochaTests = mochaReport.failures.addAll(mochaReport.passes)
+                for (mochaTest in mochaTests) {
                     def testCaseTitle = mochaTest.fullTitle
                     def testCaseStatus = "FAIL"
                     testRunSummary = "| ${testCaseTitle} | ${testCaseStatus} | \n"
@@ -174,21 +178,11 @@ pipeline {
                     env.testCasesExecutionSummary += testRunSummary
                 }
             }
-
-            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
-                fields: [
-                    project: [key: "${JIRA_PROJECT_KEY}"],
-                    description: "${env.testCasesExecutionSummary}",
-                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
-                ]
-            ]
-        }
-
-        success {
             jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
                 fields: [
                     project: [key: "${JIRA_PROJECT_KEY}"],
                     customfield_10036: [value: 'SUCCESS'],
+                    description: "${env.testCasesExecutionSummary}",
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]
@@ -199,6 +193,7 @@ pipeline {
                 fields: [
                     project: [key: "${JIRA_PROJECT_KEY}"],
                     customfield_10036: [value: 'FAILURE'],
+                    description: "Build failed at stage ${env.STAGE_NAME}",
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]
