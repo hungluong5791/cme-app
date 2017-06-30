@@ -139,15 +139,17 @@ pipeline {
                 def xrayReport = readJSON file: 'reports/XrayReport.json'
                 def xrayTests = xrayReport.tests
                 env.testCasesExecutionSummary = """
-                TEST EXECUTION SUMMARY
+                # TEST EXECUTION SUMMARY
 
+                | Test Case | Status |
+                | ----------|:------:|
                 """
                 for (xrayTest in xrayTests) {
                     def testCaseId = xrayTest.testKey
                     def testCaseUrl = env.JIRA_BASE_URL + "/browse/${testCaseId}"
                     def testCaseStatus = xrayTest.status
 
-                    testRunSummary = "[${testCaseId}|${testCaseUrl}]: ${testCaseStatus} \n"
+                    testRunSummary = "| [${testCaseId}|${testCaseUrl}] | ${testCaseStatus} |"
                     env.testCasesExecutionSummary += testRunSummary
                 }
             }
