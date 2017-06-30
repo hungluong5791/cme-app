@@ -10,7 +10,6 @@
   "license": "MIT",
   "scripts": {
     "start": "node app.js",
-    // "test": "mocha --reporter mochawesome --reporter-options inlineAssets=true",
     "test": "mocha --reporter mocha-json-file-reporter",
     "postinstall": "npm rebuild node-sass"
   },
