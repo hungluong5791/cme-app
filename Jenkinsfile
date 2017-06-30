@@ -25,6 +25,7 @@ pipeline {
         stage('Pre-Build') {
             steps {
                 script {
+                    // Create new JIRA build issue
                     issue = [
                         fields: [
                             project: [key: "${JIRA_PROJECT_KEY}"],
@@ -36,19 +37,21 @@ pipeline {
                     response = jiraNewIssue issue: issue
                     env.BUILD_TICKET_ID = response.data.id
 
-                    transition =  [
+                    // Start the JIRA build issue
+                    jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
                         transition: [
                             id: "${JIRA_TRANSITION_START}",
                         ]
                     ]
-                    jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: transition
                 }
             }
         }
         
         stage('Checkout') {
             steps {
+                // Checkout app code
                 checkout scm
+                // Checkout ART code
                 checkout([
                     $class: 'GitSCM', 
                     branches: [[name: 'xray-integrate']],                    
@@ -130,6 +133,31 @@ pipeline {
             // Workaround while waiting for jiraAttach
             withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
                 sh "find ./reports/ -regextype posix-extended -regex '.*\\.(html|xlsx)' -exec curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
+            }
+
+            script {
+                def xrayReport = readJSON file: 'reports/XrayReport.json'
+                def xrayTests = xrayReport.tests
+                def testCasesExecutionSummary = """
+                TEST EXECUTION SUMMARY
+
+                """
+                for (xrayTest in xrayTests) {
+                    def testCaseId = xrayTest.testKey
+                    def testCaseUrl = env.JIRA_BASE_URL + "/browse/${testId}"
+                    def testCaseStatus = xrayTest.status
+
+                    testRunSummary = "[${testCaseId}|${testCaseUrl}]: ${testCaseStatus} \n"
+                    testCasesExecutionSummary += testRunSummary
+                }
+
+                jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+                    fields: [
+                        project: [key: "${JIRA_PROJECT_KEY}"],
+                        description: "${testCasesExecutionSummary}"
+                        issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
+                    ]
+                ]    
             }
         }
 
