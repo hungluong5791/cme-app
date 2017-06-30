@@ -144,7 +144,7 @@ pipeline {
                 """
                 for (xrayTest in xrayTests) {
                     def testCaseId = xrayTest.testKey
-                    def testCaseUrl = env.JIRA_BASE_URL + "/browse/${testId}"
+                    def testCaseUrl = env.JIRA_BASE_URL + "/browse/${testCaseId}"
                     def testCaseStatus = xrayTest.status
 
                     testRunSummary = "[${testCaseId}|${testCaseUrl}]: ${testCaseStatus} \n"
