@@ -154,7 +154,7 @@ pipeline {
                 jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
                     fields: [
                         project: [key: "${JIRA_PROJECT_KEY}"],
-                        description: "${testCasesExecutionSummary}"
+                        description: "${testCasesExecutionSummary}",
                         issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                     ]
                 ]    
