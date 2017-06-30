@@ -29,7 +29,7 @@ pipeline {
                     issue = [
                         fields: [
                             project: [key: "${JIRA_PROJECT_KEY}"],
-                            summary: "JenkinsCI: Build #${env.BUILD_NUMBER}",
+                            summary: "[JenkinsCI][STAGING] Build #${env.BUILD_NUMBER}",
                             // assignee: [name: "JenkinsCI"],
                             issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                         ]
@@ -80,7 +80,7 @@ pipeline {
                 SONAR_PROJECT_VERSION = '1.0'
                 SONAR_SOURCE = "${env.WORKSPACE}"
                 // SONAR_SCM_DISABLED = 'true'
-                SONAR_EXCLUSION = "=test/**, node_modules/**"
+                SONAR_EXCLUSION = "test/**, node_modules/**, CME-RnD/**"
             }
 
             steps {
