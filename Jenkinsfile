@@ -85,7 +85,6 @@ pipeline {
             steps {
                 withSonarQubeEnv("${SONAR_ENV}") {
                     echo "${SONAR_LOGIN}"
-                    echo "${SONAR_USERNAME}"
                     echo "${SONAR_PASSWORD}"
                     sh "${SONAR_HOME}/bin/sonar-scanner -Dsonar.login=${SONAR_LOGIN} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.jdbc.url=\"${SONAR_JDBC_URL}\" -Dsonar.jdbc.username=${SONAR_JDBC_USERNAME} -Dsonar.jdbc.password=${SONAR_JDBC_USERNAME} -Dsonar.projectName=${SONAR_PROJECT_NAME} -Dsonar.projectVersion=${SONAR_PROJECT_KEY} -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.sources=${SONAR_SOURCE} -Dsonar.scm.disabled=${SONAR_SCM_DISABLED}"
                 }
