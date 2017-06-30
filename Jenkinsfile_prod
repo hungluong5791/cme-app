@@ -54,17 +54,6 @@ pipeline {
         }
 
         stage('AWS Deploy Production') {
-            environment {
-                CLUSTER="cme-devops-app"
-                SERVICE="cme-devops-app"
-                TASK_FAMILY="cme-devops-app"
-
-                DOCKER_REGISTRY="768738047170.dkr.ecr.us-east-1.amazonaws.com"
-                DOCKER_REPO="cme-devops"
-                DOCKER_TAG="latest"
-                DOCKER_IMAGE="${DOCKER_REGISTRY}/${DOCKER_REPO}:${DOCKER_TAG}"
-            }
-
             steps {
                 sh 'chmod +x deploy-aws.sh'
                 sh './deploy-aws.sh'
