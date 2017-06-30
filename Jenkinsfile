@@ -30,6 +30,9 @@ pipeline {
                         fields: [
                             project: [key: "${JIRA_PROJECT_KEY}"],
                             summary: "[JenkinsCI][STAGING] Build #${env.BUILD_NUMBER}",
+                            labels: [
+                                "STAGING",
+                            ],
                             // assignee: [name: "JenkinsCI"],
                             issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                         ]
