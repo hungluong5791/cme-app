@@ -69,7 +69,8 @@ pipeline {
         stage('Unit test') {
             steps {
                 // sh "npm install && MOCHAWESOME_REPORTDIR=reports MOCHAWESOME_REPORTFILENAME=mocha-report MOCHAWESOME_REPORTPAGETITLE='Build #${env.BUILD_NUMBER}' npm test"
-                sh "npm install && npm test"
+                sh "npm install"
+                sh "npm test"
                 sh 'mv report.json reports'
             }
         }
@@ -88,8 +89,6 @@ pipeline {
 
             steps {
                 withSonarQubeEnv("${SONAR_ENV}") {
-                    echo "${SONAR_LOGIN}"
-                    echo "${SONAR_PASSWORD}"
                     sh "${SONAR_HOME}/bin/sonar-scanner -Dsonar.login=${SONAR_LOGIN} -Dsonar.password=${SONAR_PASSWORD} -Dsonar.jdbc.url=\"${SONAR_JDBC_URL}\" -Dsonar.jdbc.username=${SONAR_JDBC_USERNAME} -Dsonar.jdbc.password=${SONAR_JDBC_PASSWORD} -Dsonar.projectName=${SONAR_PROJECT_NAME} -Dsonar.projectVersion=${SONAR_PROJECT_KEY} -Dsonar.projectKey=${SONAR_PROJECT_KEY} -Dsonar.sources=${SONAR_SOURCE} -Dsonar.exclusions=\"${SONAR_EXCLUSION}\""
                 }
             }
@@ -143,10 +142,10 @@ pipeline {
                         sh 'mv -t reports CME-RnD/reports/*.xlsx CME-RnD/reports/*.html CME-RnD/reports/*.json'
                     },
                     firefox: {
-                        sleep 60
+                        sleep 120
                     },
                     ie: {
-                        sleep 45
+                        sleep 100
                     },
                     failFast: false
                 )
@@ -173,6 +172,9 @@ pipeline {
             // withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
             //     sh "find ./reports/ -regextype posix-extended -regex '.*\\.(html|xlsx)' -exec curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
             // }
+
+            // Archive reports
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'reports/*'
 
             // Include test reports in issue description
             script {
