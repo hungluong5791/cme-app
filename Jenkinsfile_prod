@@ -24,6 +24,7 @@ pipeline {
         stage('Pre-Build') {
             steps {
                 script {
+                    def APPROVAL = input message: 'Production Release Approval', parameters: [string(defaultValue: '', description: 'Approval required for Production build', name: 'Production Release Approval')]
                     // Create new JIRA build issue
                     issue = [
                         fields: [

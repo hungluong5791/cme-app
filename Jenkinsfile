@@ -142,7 +142,7 @@ pipeline {
                         sh 'mv -t reports CME-RnD/reports/*.xlsx CME-RnD/reports/*.html CME-RnD/reports/*.json'
                     },
                     firefox: {
-                        sleep 120
+                        sleep 105
                     },
                     ie: {
                         sleep 100
@@ -174,7 +174,7 @@ pipeline {
             // }
 
             // Archive reports
-            archiveArtifacts allowEmptyArchive: true, artifacts: 'reports/*'
+            // archiveArtifacts allowEmptyArchive: true, artifacts: 'reports/*'
 
             // Include test reports in issue description
             script {
