@@ -61,10 +61,10 @@ mongoose.connection.on('error', (err) => {
 
 var upTime=0;
 
-var minutes = 0.1, the_interval = minutes * 60 * 1000;
+var minutes = 1, the_interval = minutes * 60 * 1000;
 
 setInterval(function() {
-  console.log("shit here");
+  console.log("update time");
   upTime = upTime+the_interval;
   aws.sendCloudWatchTime(upTime/1000);  
 }, the_interval);
