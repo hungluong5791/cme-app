@@ -1,8 +1,8 @@
 const AWS = require('aws-sdk');
 
 AWS.config.update({
-    accessKeyId: "AKIAJTS2E5MONLMBBRPA",
-    secretAccessKey: "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",
+    accessKeyId: "AKIAIZKFNIVOTCL5CDKA",
+    secretAccessKey: "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",
     "region": "us-east-1"
 });
 var cloudwatch = new AWS.CloudWatch();
