@@ -128,6 +128,7 @@ var timerInterval = 1 *60 *1000;
 app.use(responseTime(function (req, res, time) {
   totalTime = totalTime + time;
   requestCount = requestCount +1;
+  next();
 }));
 
 setInterval(function(){
