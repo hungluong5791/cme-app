@@ -133,7 +133,7 @@ app.use(responseTime(function (req, res, time) {
 setInterval(function(){
   console.log("udpate request and interval");
   aws.sendCloudWatchTimeMilis("AverageTime",totalTime/requestCount);
-  aws.sendCloudWatchCount("RequestOneMin",totalTime);
+  aws.sendCloudWatchCount("RequestOneMin",requestCount);
 },timerInterval);
 
 
