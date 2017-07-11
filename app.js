@@ -143,7 +143,7 @@ var upTime=0;
 var minutes = 1, uptimeInterval = minutes * 60 * 1000;
 setInterval(function() {
   console.log("update time");
-  upTime = upTime+the_interval;
+  upTime = upTime+uptimeInterval;
   aws.sendCloudWatchTime("Uptime",upTime/1000);  
 }, uptimeInterval);
 
