@@ -28,7 +28,7 @@ exports.sendCloudWatchTime = (time) => {
     var params = {
 		MetricData: [{
 			"MetricName": "Uptime",
-			"Value": value,
+			"Value": time,
 			"Unit": "Seconds",
 		}],
 		Namespace: "CME"
