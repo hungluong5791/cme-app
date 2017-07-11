@@ -1,5 +1,3 @@
 $(document).ready(function() {
-
-  // Place JavaScript code here...
-
+  // console.log("shit over here");
 });

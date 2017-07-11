@@ -7,10 +7,10 @@ AWS.config.update({
 });
 var cloudwatch = new AWS.CloudWatch();
 
-exports.sendCloudWatchCount = (value) => {	
+exports.sendCloudWatchCount = (name,value) => {	
 	var params = {
 		MetricData: [{
-			"MetricName": "Request",
+			"MetricName": name,
 			"Value": value,
 			"Unit": "Count",
 		}],
@@ -24,10 +24,10 @@ exports.sendCloudWatchCount = (value) => {
         });
 };
 
-exports.sendCloudWatchTime = (time) => {
+exports.sendCloudWatchTime = (name,time) => {
     var params = {
 		MetricData: [{
-			"MetricName": "Uptime",
+			"MetricName": name,
 			"Value": time,
 			"Unit": "Seconds",
 		}],
