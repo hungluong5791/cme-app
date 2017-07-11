@@ -122,16 +122,16 @@ app.use((req, res, next) => {
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 
 //respond time
-var totalTime;
-var requestCount;
+var totalTime=0;
+var requestCount=0;
 var timerInterval = 1 *60 *1000;
 app.use(responseTime(function (req, res, time) {
   totalTime = totalTime + time;
-  requestCount = requestCount +1;
-  next();
+  requestCount = requestCount +1;  
 }));
 
 setInterval(function(){
+  console.log("udpate request and interval");
   aws.sendCloudWatchTimeMilis("AverageTime",totalTime/requestCount);
   aws.sendCloudWatchCount("RequestOneMin",totalTime);
 },timerInterval);
