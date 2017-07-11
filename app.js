@@ -19,6 +19,7 @@ const expressValidator = require('express-validator');
 const expressStatusMonitor = require('express-status-monitor');
 const sass = require('node-sass-middleware');
 const multer = require('multer');
+const _ = require('lodash');
 
 const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
@@ -66,7 +67,7 @@ var minutes = 1, the_interval = minutes * 60 * 1000;
 setInterval(function() {
   console.log("update time");
   upTime = upTime+the_interval;
-  aws.sendCloudWatchTime(upTime/1000);  
+  // aws.sendCloudWatchTime("Uptime",upTime/1000);  
 }, the_interval);
 
 /**
@@ -86,14 +87,15 @@ app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(expressValidator());
 app.use(session({
-  resave: true,
+  resave: false,
   saveUninitialized: true,
   secret: process.env.SESSION_SECRET,
-  store: new MongoStore({
-    url: process.env.MONGODB_URI || process.env.MONGOLAB_URI,
-    autoReconnect: true,
-    clear_interval: 3600
-  })
+  maxAge: 20
+  // store: new MongoStore({
+  //   url: process.env.MONGODB_URI || process.env.MONGOLAB_URI,
+  //   autoReconnect: true,
+  //   clear_interval: 20
+  // })
 }));
 app.use(passport.initialize());
 app.use(passport.session());
@@ -111,7 +113,7 @@ app.use((req, res, next) => {
   res.locals.user = req.user;
   next();
 });
-app.use((req, res, next) => {
+app.use((req, res, next) => {  
   // After successful login, redirect back to the intended page
   if (!req.user &&
       req.path !== '/login' &&
@@ -127,10 +129,49 @@ app.use((req, res, next) => {
 });
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 
+
+//active user array
+var currentUser = [];
+
+app.use((req,res,next) => {
+  var isNew = true;
+  // console.log(req.session._csrfSecret);
+  currentUser.forEach(function(element) {
+    if (element.session==req.session._csrfSecret) {
+      element.timeout=0;
+      isNew = false;
+    }
+  }, this);
+  if (isNew)
+  {
+    currentUser[currentUser.length] = {"session":req.session._csrfSecret,timeout:0};
+  }
+  console.log(currentUser);
+  next();
+});
+
+var activeInterval = 1 * 60 * 1000;
+
+setInterval(function() {
+  currentUser.forEach(function(element){
+    element.timeout=element.timeout+1;
+  },this);
+
+  currentUser = _.remove(currentUser,function(n){
+    return n.timeout==3;
+  });
+  console.log("Active user: "+(currentUser.length+1));
+  aws.sendCloudWatchCount("ActiveUser",(currentUser.length+1));
+},activeInterval);
+
 /**
  * Primary app routes.
  */
-app.get('/', homeController.index);
+
+app.get('/', function handle(req,res){  
+  homeController.index(req,res);   
+});
+//app.get('/', homeController.index);
 app.get('/login', userController.getLogin);
 app.post('/login', userController.postLogin);
 app.get('/logout', userController.logout);
