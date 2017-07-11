@@ -24,12 +24,31 @@ exports.sendCloudWatchCount = (name,value) => {
         });
 };
 
+
+
 exports.sendCloudWatchTime = (name,time) => {
     var params = {
 		MetricData: [{
 			"MetricName": name,
 			"Value": time,
 			"Unit": "Seconds",
+		}],
+		Namespace: "CME"
+	}
+    cloudwatch.putMetricData(params, function(err, data) {
+		if (err)
+			console.log(err, err.stack);
+		else
+			console.log(data);
+        });
+};
+
+exports.sendCloudWatchTimeMilis = (name,time) => {
+    var params = {
+		MetricData: [{
+			"MetricName": name,
+			"Value": time,
+			"Unit": "Milliseconds",
 		}],
 		Namespace: "CME"
 	}

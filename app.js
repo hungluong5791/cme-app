@@ -20,7 +20,7 @@ const expressStatusMonitor = require('express-status-monitor');
 const sass = require('node-sass-middleware');
 const multer = require('multer');
 const _ = require('lodash');
-
+const responseTime = require('response-time')
 const upload = multer({ dest: path.join(__dirname, 'uploads') });
 
 /**
@@ -60,15 +60,7 @@ mongoose.connection.on('error', (err) => {
 });
 
 
-var upTime=0;
 
-var minutes = 1, the_interval = minutes * 60 * 1000;
-
-setInterval(function() {
-  console.log("update time");
-  upTime = upTime+the_interval;
-  // aws.sendCloudWatchTime("Uptime",upTime/1000);  
-}, the_interval);
 
 /**
  * Express configuration.
@@ -129,6 +121,31 @@ app.use((req, res, next) => {
 });
 app.use(express.static(path.join(__dirname, 'public'), { maxAge: 31557600000 }));
 
+//respond time
+var totalTime;
+var requestCount;
+var timerInterval = 1 *60 *1000;
+app.use(responseTime(function (req, res, time) {
+  totalTime = totalTime + time;
+  requestCount = requestCount +1;
+}));
+
+setInterval(function(){
+  aws.sendCloudWatchTimeMilis("AverageTime",totalTime/requestCount);
+  aws.sendCloudWatchCount("RequestOneMin",totalTime);
+},timerInterval);
+
+
+
+//uptime
+
+var upTime=0;
+var minutes = 1, uptimeInterval = minutes * 60 * 1000;
+setInterval(function() {
+  console.log("update time");
+  upTime = upTime+the_interval;
+  aws.sendCloudWatchTime("Uptime",upTime/1000);  
+}, uptimeInterval);
 
 //active user array
 var currentUser = [];
@@ -163,6 +180,8 @@ setInterval(function() {
   console.log("Active user: "+(currentUser.length+1));
   aws.sendCloudWatchCount("ActiveUser",(currentUser.length+1));
 },activeInterval);
+
+
 
 /**
  * Primary app routes.
