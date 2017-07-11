@@ -34,6 +34,7 @@ const homeController = require('./controllers/home');
 const userController = require('./controllers/user');
 const apiController = require('./controllers/api');
 const contactController = require('./controllers/contact');
+const aws = require('./controllers/aws');
 
 /**
  * API keys and Passport configuration.
@@ -51,10 +52,21 @@ const app = express();
 mongoose.Promise = global.Promise;
 mongoose.connect(process.env.MONGODB_URI || process.env.MONGOLAB_URI);
 mongoose.connection.on('error', (err) => {
+  console.log(process.env.MONGODB_URI);
   console.error(err);
   console.log('%s MongoDB connection error. Please make sure MongoDB is running.', chalk.red('✗'));
   process.exit();
 });
+
+
+var upTime=0;
+
+var minutes = 1, the_interval = minutes * 60 * 1000;
+
+setInterval(function() {
+  upTime = upTime+the_interval;
+  aws.sendCloudWatchTime(upTime/1000);  
+}, the_interval);
 
 /**
  * Express configuration.
@@ -229,5 +241,9 @@ app.listen(app.get('port'), () => {
 
   console.log('  Press CTRL-C to stop\n');
 });
+
+
+
+ 
 
 module.exports = app;
