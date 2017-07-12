@@ -132,7 +132,7 @@ app.use(responseTime(function (req, res, time) {
 
 setInterval(function(){
   console.log("udpate request and interval");
-  aws.sendCloudWatchTimeMilis("AverageTime",totalTime/requestCount);
+  if (requestCount!=0) aws.sendCloudWatchTimeMilis("AverageTime",totalTime/requestCount);
   aws.sendCloudWatchCount("RequestOneSec",requestCount/60);
   totalTime=0;
   requestCount=0;
@@ -169,7 +169,7 @@ app.use((req,res,next) => {
   next();
 });
 
-var activeInterval = minutes * 60 * 1000;
+var activeInterval = 0.5*minutes * 60 * 1000;
 
 setInterval(function() {
   if (currentUser.length==0) return;
