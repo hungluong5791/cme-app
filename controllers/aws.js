@@ -1,10 +1,9 @@
 const AWS = require('aws-sdk');
 
-// AWS.config.update({
-//     accessKeyId: "AKIAIHZZ7YD4MVQ3Z34Q",
-//     secretAccessKey: "",
-//     region: "us-east-1"
-// });
+AWS.config.update({
+    
+    region: "us-east-1"
+});
 var cloudwatch = new AWS.CloudWatch();
 
 exports.sendCloudWatchCount = (name, value) => {
