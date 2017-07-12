@@ -133,7 +133,9 @@ app.use(responseTime(function (req, res, time) {
 setInterval(function(){
   console.log("udpate request and interval");
   aws.sendCloudWatchTimeMilis("AverageTime",totalTime/requestCount);
-  aws.sendCloudWatchCount("RequestOneMin",requestCount/60);
+  aws.sendCloudWatchCount("RequestOneSec",requestCount/60);
+  totalTime=0;
+  requestCount=0;
 },timerInterval);
 
 
@@ -153,7 +155,6 @@ var currentUser = [];
 
 app.use((req,res,next) => {
   var isNew = true;
-  // console.log(req.session._csrfSecret);
   currentUser.forEach(function(element) {
     if (element.session==req.session._csrfSecret) {
       element.timeout=0;
@@ -162,24 +163,27 @@ app.use((req,res,next) => {
   }, this);
   if (isNew)
   {
-    currentUser[currentUser.length] = {"session":req.session._csrfSecret,timeout:0};
+    currentUser.push({"session":req.session._csrfSecret,timeout:0});
   }
   console.log(currentUser);
   next();
 });
 
-var activeInterval = 1 * 60 * 1000;
+var activeInterval = minutes * 60 * 1000;
 
 setInterval(function() {
+  if (currentUser.length==0) return;
+
   currentUser.forEach(function(element){
     element.timeout=element.timeout+1;
   },this);
-
+  console.log(currentUser);
   currentUser = _.remove(currentUser,function(n){
-    return n.timeout==3;
+    return n.timeout<=3;
   });
-  console.log("Active user: "+(currentUser.length+1));
-  aws.sendCloudWatchCount("ActiveUser",(currentUser.length+1));
+  console.log("active after remove"+ currentUser);
+  console.log("Active user: "+(currentUser.length));
+  aws.sendCloudWatchCount("ActiveUser",(currentUser.length));
 },activeInterval);
 
 
