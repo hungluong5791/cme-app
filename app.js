@@ -177,11 +177,11 @@ setInterval(function() {
   currentUser.forEach(function(element){
     element.timeout=element.timeout+1;
   },this);
-  console.log(currentUser);
+  // console.log(currentUser);
   currentUser = _.remove(currentUser,function(n){
     return n.timeout<=3;
   });
-  console.log("active after remove"+ currentUser);
+  // console.log("active after remove: "+ currentUser);
   console.log("Active user: "+(currentUser.length));
   aws.sendCloudWatchCount("ActiveUser",(currentUser.length));
 },activeInterval);
