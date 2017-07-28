@@ -5,7 +5,7 @@ pipeline {
 
     environment {
         JIRA_SITE = 'CME JIRA'
-        JIRA_BASE_URL = 'http://10.88.96.79:8080'
+        JIRA_BASE_URL = 'http://10.88.96.77:8080'
         JIRA_CREDENTIALS = 'cme-jira-credentials'
         JIRA_PROJECT_KEY = 'CME'
         JIRA_ISSUE_TYPE_BUILD = 10011
