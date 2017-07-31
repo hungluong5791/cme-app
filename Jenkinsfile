@@ -9,8 +9,8 @@ pipeline {
         JIRA_CREDENTIALS = 'cme-jira-credentials'
         JIRA_PROJECT_KEY = 'CMET'
         JIRA_ISSUE_TYPE_BUILD = 10011
-        JIRA_TRANSITION_START = 2
-        JIRA_TRANSITION_FINISH = 10001
+        JIRA_TRANSITION_START = 11
+        JIRA_TRANSITION_FINISH = 31
     }
 
     options {
