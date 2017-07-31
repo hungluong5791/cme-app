@@ -8,9 +8,9 @@ pipeline {
         JIRA_BASE_URL = 'http://10.88.96.77:8080'
         JIRA_CREDENTIALS = 'cme-jira-credentials'
         JIRA_PROJECT_KEY = 'CME'
-        JIRA_ISSUE_TYPE_BUILD = 10011
-        JIRA_TRANSITION_START = 11
-        JIRA_TRANSITION_FINISH = 21
+        JIRA_ISSUE_TYPE_BUILD = 10012
+        JIRA_TRANSITION_START = 12
+        JIRA_TRANSITION_FINISH = 241
     }
 
     options {
