@@ -134,13 +134,13 @@ pipeline {
             steps {
                 parallel (
                     chrome: {
-                        sleep 100
-                        //sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-core-1.0.jar -DpomFile=libs/pom-core.xml'
-                        //sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-ui-1.2.jar -DpomFile=libs/pom-ui.xml'
-                        //sh 'cd CME-RnD && mvn clean install'
-                        //sh 'cd CME-RnD && chmod +x drivers/chromedriver_linux64'
-                        //sh 'cd CME-RnD && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
-                        //sh 'mv -t reports CME-RnD/reports/*.xlsx CME-RnD/reports/*.html CME-RnD/reports/*.json'
+                        //sleep 100
+                        sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-core-1.0.jar -DpomFile=libs/pom-core.xml'
+                        sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-ui-1.2.jar -DpomFile=libs/pom-ui.xml'
+                        sh 'cd CME-RnD && mvn clean install'
+                        sh 'cd CME-RnD && chmod +x drivers/chromedriver_linux64'
+                        sh 'cd CME-RnD && java -Dwebdriver.chrome.driver=drivers/chromedriver_linux64 -jar target/Z8.ART-1.0-jar-with-dependencies.jar -planFile Devops.xml -envFile env.properties'
+                        sh 'mv -t reports CME-RnD/reports/*.xlsx CME-RnD/reports/*.html CME-RnD/reports/*.json'
                     },
                     firefox: {
                         sleep 105
