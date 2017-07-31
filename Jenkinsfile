@@ -246,7 +246,7 @@ pipeline {
             <p>Please find attached the Log and Test Reports for this build.</p>
             
             <p>To promote this build to Production please visit: http://10.88.96.73:8081/jenkins/job/CME_DevOps_Demo_Production/</p>
-            """, mimeType: 'text/html', subject: "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}", to: "hunglk1@fsoft.com.vn", attachLog: true, attachmentsPattern: "reports/*"
+            """, mimeType: 'text/html', subject: "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}", to: "hunglk1@fsoft.com.vn,dunghv2@fsoft.com.vn", attachLog: true, attachmentsPattern: "reports/*"
         }
 
         failure {
@@ -265,7 +265,7 @@ pipeline {
 
             Please find attached the Log and Test Reports for this build.
 
-            """, mimeType: 'text/html', subject: "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}", to: "hunglk1@fsoft.com.vn", attachLog: true, attachmentsPattern: "reports/*"
+            """, mimeType: 'text/html', subject: "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}", to: "hunglk1@fsoft.com.vn,dunghv2@fsoft.com.vn", attachLog: true, attachmentsPattern: "reports/*"
         }
     }
 }
