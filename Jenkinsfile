@@ -130,7 +130,7 @@ pipeline {
 
         stage('Integration Test') {
             steps {
-                parallel
+                parallel(
                     chrome: {
                         sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-core-1.0.jar -DpomFile=libs/pom-core.xml'
                         sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-ui-1.2.jar -DpomFile=libs/pom-ui.xml'
@@ -146,6 +146,7 @@ pipeline {
                         sleep 100
                     },
                     failFast: false
+                )
             }
         }
     }
