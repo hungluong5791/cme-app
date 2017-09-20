@@ -11,6 +11,13 @@ pipeline {
         JIRA_ISSUE_TYPE_BUILD = 10011
         JIRA_TRANSITION_START = 11
         JIRA_TRANSITION_FINISH = 31
+        
+        DOCKER_IMAGE_NAME = 'cme-devops'
+        DOCKER_IMAGE_TAG = 'latest'
+        DOCKER_IMAGE_REGISTRY = 'https://768738047170.dkr.ecr.us-east-1.amazonaws.com'
+        DOCKER_ECR_CREDENTIALS = 'ecr:us-east-1:cme-devops-aws-credentials'
+        DOCKER_REGISTRY_REPO = 'cme-devops'
+        DOCKER_IMAGE_URL = "${DOCKER_IMAGE_REGISTRY}/${DOCKER_REGISTRY_REPO}:${DOCKER_IMAGE_TAG}"
     }
 
     options {
@@ -37,31 +44,32 @@ pipeline {
                             issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                         ]
                     ]
-                    response = jiraNewIssue issue: issue
+                    // response = jiraNewIssue issue: issue
                     env.BUILD_TICKET_ID = response.data.id
 
                     // Start the JIRA build issue
-                    jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
-                        transition: [
-                            id: "${JIRA_TRANSITION_START}",
-                        ]
-                    ]
+                    // jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
+                    //     transition: [
+                    //         id: "${JIRA_TRANSITION_START}",
+                    //     ]
+                    // ]
                 }
             }
         }
-        
+
         stage('Checkout') {
             steps {
                 // Checkout app code
                 checkout scm
                 // Checkout ART code
-                checkout([
-                    $class: 'GitSCM', 
-                    branches: [[name: 'xray-integrate']],                    
-                    doGenerateSubmoduleConfigurations: false, 
-                    extensions: [[$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true], [$class: 'RelativeTargetDirectory', relativeTargetDir: 'CME-RnD'],[$class: 'CleanBeforeCheckout']], 
-                    submoduleCfg: [], 
-                    userRemoteConfigs: [[credentialsId: 'ec4707cf-c32b-4b1e-a2bf-1409d60cf003', url: 'https://git.fsoft.com.vn/fsoft/CME-RnD.git']]])
+                checkout [
+                    $class: 'GitSCM',
+                    branches: [[name: 'xray-integrate']],
+                    doGenerateSubmoduleConfigurations: false,
+                    extensions: [[$class: 'CloneOption', depth: 1, noTags: false, reference: '', shallow: true], [$class: 'RelativeTargetDirectory', relativeTargetDir: 'CME-RnD'],[$class: 'CleanBeforeCheckout']],
+                    submoduleCfg: [],
+                    userRemoteConfigs: [[credentialsId: 'ec4707cf-c32b-4b1e-a2bf-1409d60cf003', url: 'https://git.fsoft.com.vn/fsoft/CME-RnD.git']]
+                ]
                 sh 'rm -rf reports/*'
             }
         }
@@ -69,15 +77,16 @@ pipeline {
         stage('Unit test') {
             steps {
                 // sh "npm install && MOCHAWESOME_REPORTDIR=reports MOCHAWESOME_REPORTFILENAME=mocha-report MOCHAWESOME_REPORTPAGETITLE='Build #${env.BUILD_NUMBER}' npm test"
-                sh "npm install"
-                sh "npm test"
-                sh 'mv report.json reports'
+                sh 'npm install'
+                sh 'npm test'
+                sh 'mv report.json reports/'
             }
         }
-        
+
         stage('SonarQube Analysis') {
             environment {
-                SONAR_HOME = tool('Sonar-Dev')
+                SONAR_HOME = tool('Sonar')
+                // SONAR_HOME = tool('Sonar-Dev')
                 SONAR_ENV = 'Sonar'
                 SONAR_PROJECT_NAME = 'CME_DEMO'
                 SONAR_PROJECT_KEY = 'CME_DEMO'
@@ -97,7 +106,7 @@ pipeline {
         stage('Docker Build') {
             steps {
                 script {
-                    docker.build("cme-devops")
+                    docker.build("${DOCKER_IMAGE_NAME}")
                 }
             }
         }
@@ -105,25 +114,14 @@ pipeline {
         stage('Docker Push') {
             steps {
                 script {
-                    docker.withRegistry('https://768738047170.dkr.ecr.us-east-1.amazonaws.com', 'ecr:us-east-1:cme-devops-aws-credentials') {
-                        docker.image('cme-devops').push('latest')
+                    docker.withRegistry("${DOCKER_IMAGE_REGISTRY}", "${DOCKER_ECR_CREDENTIALS}") {
+                        docker.image("${DOCKER_IMAGE_NAME}").push("${DOCKER_IMAGE_TAG}")
                     }
                 }
             }
         }
 
         stage('AWS Deploy Staging') {
-            environment {
-                CLUSTER="cme-devops-app"
-                SERVICE="cme-devops-app"
-                TASK_FAMILY="cme-devops-app"
-
-                DOCKER_REGISTRY="768738047170.dkr.ecr.us-east-1.amazonaws.com"
-                DOCKER_REPO="cme-devops"
-                DOCKER_TAG="latest"
-                DOCKER_IMAGE="${DOCKER_REGISTRY}/${DOCKER_REPO}:${DOCKER_TAG}"
-            }
-
             steps {
                 sh 'chmod +x deploy-aws.sh'
                 sh './deploy-aws.sh'
@@ -132,9 +130,8 @@ pipeline {
 
         stage('Integration Test') {
             steps {
-                parallel (
+                parallel
                     chrome: {
-                        //sleep 100
                         sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-core-1.0.jar -DpomFile=libs/pom-core.xml'
                         sh 'cd CME-RnD && mvn install:install-file -Dfile=libs/z8-art-ui-1.2.jar -DpomFile=libs/pom-ui.xml'
                         sh 'cd CME-RnD && mvn clean install'
@@ -149,8 +146,6 @@ pipeline {
                         sleep 100
                     },
                     failFast: false
-                )
-                
             }
         }
     }
@@ -158,17 +153,17 @@ pipeline {
     post {
         always {
             // Mark Build as Done
-            jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
-                transition: [
-                    id: "${JIRA_TRANSITION_FINISH}",
-                ]
-            ]
+            // jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
+            //     transition: [
+            //         id: "${JIRA_TRANSITION_FINISH}",
+            //     ]
+            // ]
 
             // Upload Xray result
-            withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
-                sh "curl -H 'Content-Type: application/json' -X POST -u ${JIRA_USERNAME}:${JIRA_PASSWORD} --data @reports/XrayReport.json ${JIRA_BASE_URL}/rest/raven/1.0/import/execution"
-            }
-            
+            // withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
+            //     sh "curl -H 'Content-Type: application/json' -X POST -u ${JIRA_USERNAME}:${JIRA_PASSWORD} --data @reports/XrayReport.json ${JIRA_BASE_URL}/rest/raven/1.0/import/execution"
+            // }
+
             // Workaround while waiting for jiraAttach
             // withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
             //     sh "find ./reports/ -regextype posix-extended -regex '.*\\.(html|xlsx)' -exec curl -D- -u ${JIRA_USERNAME}:${JIRA_PASSWORD} -X POST -H 'X-Atlassian-Token: no-check' -F 'file=@{}' ${JIRA_BASE_URL}/rest/api/2/issue/${env.BUILD_TICKET_ID}/attachments \\;"
@@ -187,7 +182,7 @@ pipeline {
                 def mochaReport = readJSON file: 'reports/report.json'
                 def mochaFailures = mochaReport.failures
                 def mochaPasses = mochaReport.passes
-                
+
                 for (mochaTest in mochaFailures) {
                     def testCaseTitle = mochaTest.fullTitle
                     def testCaseStatus = "FAIL"
@@ -211,7 +206,7 @@ pipeline {
 
                 def xrayReport = readJSON file: 'reports/XrayReport.json'
                 def xrayTests = xrayReport.tests
-                
+
                 for (xrayTest in xrayTests) {
                     def testCaseId = xrayTest.testKey
                     def testCaseUrl = env.JIRA_BASE_URL + "/browse/${testCaseId}"
@@ -221,23 +216,23 @@ pipeline {
                     env.testCasesExecutionSummary += testRunSummary
                 }
             }
-            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
-                fields: [
-                    project: [key: "${JIRA_PROJECT_KEY}"],
-                    description: "${env.testCasesExecutionSummary}",
-                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
-                ]
-            ]
+            // jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+            //     fields: [
+            //         project: [key: "${JIRA_PROJECT_KEY}"],
+            //         description: "${env.testCasesExecutionSummary}",
+            //         issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
+            //     ]
+            // ]
         }
 
         success {
-            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
-                fields: [
-                    project: [key: "${JIRA_PROJECT_KEY}"],
-                    customfield_10036: [value: 'SUCCESS'],
-                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
-                ]
-            ]
+            // jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+            //     fields: [
+            //         project: [key: "${JIRA_PROJECT_KEY}"],
+            //         customfield_10036: [value: 'SUCCESS'],
+            //         issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
+            //     ]
+            // ]
 
             emailext body: """
             <p>Build URL: ${env.BUILD_URL}</p>
@@ -245,19 +240,19 @@ pipeline {
             <p>Status: SUCCESS</p>
 
             <p>Please find attached the Log and Test Reports for this build.</p>
-            
+
             <p>To promote this build to Production please visit: http://10.88.96.73:8081/jenkins/job/CME_DevOps_Demo_Production/</p>
             """, mimeType: 'text/html', subject: "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}", to: "hunglk1@fsoft.com.vn,dunghv2@fsoft.com.vn", attachLog: true, attachmentsPattern: "reports/*"
         }
 
         failure {
-            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
-                fields: [
-                    project: [key: "${JIRA_PROJECT_KEY}"],
-                    customfield_10036: [value: 'FAILURE'],
-                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
-                ]
-            ]
+            // jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+            //     fields: [
+            //         project: [key: "${JIRA_PROJECT_KEY}"],
+            //         customfield_10036: [value: 'FAILURE'],
+            //         issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
+            //     ]
+            // ]
 
             emailext body: """
             <p>Build URL: ${env.BUILD_URL}</p>
