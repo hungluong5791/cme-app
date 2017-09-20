@@ -78,7 +78,7 @@ pipeline {
             steps {
                 // sh "npm install && MOCHAWESOME_REPORTDIR=reports MOCHAWESOME_REPORTFILENAME=mocha-report MOCHAWESOME_REPORTPAGETITLE='Build #${env.BUILD_NUMBER}' npm test"
                 sh 'npm install'
-                sh 'npm test'
+                sh 'PORT=8888 npm test'
                 sh 'mv report.json reports/'
             }
         }
