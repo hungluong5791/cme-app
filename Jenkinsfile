@@ -45,7 +45,7 @@ pipeline {
                         ]
                     ]
                     // response = jiraNewIssue issue: issue
-                    env.BUILD_TICKET_ID = response.data.id
+                    // env.BUILD_TICKET_ID = response.data.id
 
                     // Start the JIRA build issue
                     // jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
