@@ -5,10 +5,10 @@ pipeline {
 
     environment {
         JIRA_SITE = 'CME JIRA'
-        JIRA_BASE_URL = 'http://10.88.96.77:8080'
+        JIRA_BASE_URL = 'http://jira.devops.fsoft-hcm.net/jira'
         JIRA_CREDENTIALS = 'cme-jira-credentials'
-        JIRA_PROJECT_KEY = 'CMET'
-        JIRA_ISSUE_TYPE_BUILD = 10011
+        JIRA_PROJECT_KEY = 'DEMO'
+        JIRA_ISSUE_TYPE_BUILD = 10500
         JIRA_TRANSITION_START = 11
         JIRA_TRANSITION_FINISH = 31
         
@@ -21,7 +21,7 @@ pipeline {
     }
 
     options {
-        buildDiscarder(logRotator(numToKeepStr: '10'))
+        buildDiscarder(logRotator(numToKeepStr: '5'))
         skipDefaultCheckout()
         timeout(time: 1, unit: 'HOURS')
         timestamps()
@@ -40,12 +40,11 @@ pipeline {
                             labels: [
                                 "STAGING",
                             ],
-                            // assignee: [name: "JenkinsCI"],
                             issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                         ]
                     ]
-                    // response = jiraNewIssue issue: issue
-                    // env.BUILD_TICKET_ID = response.data.id
+                    response = jiraNewIssue issue: issue
+                    env.BUILD_TICKET_ID = response.data.id
 
                     // Start the JIRA build issue
                     // jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
@@ -263,7 +262,7 @@ pipeline {
 
             Please find attached the Log and Test Reports for this build.
 
-            """, mimeType: 'text/html', subject: "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}", to: "hunglk1@fsoft.com.vn,dunghv2@fsoft.com.vn", attachLog: true, attachmentsPattern: "reports/*"
+            """, mimeType: 'text/html', subject: "[Jenkins][${env.JOB_NAME}] Build #${env.BUILD_NUMBER}", to: "hunglk1@fsoft.com.vn", attachLog: true, attachmentsPattern: "reports/*"
         }
     }
 }
