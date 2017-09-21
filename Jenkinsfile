@@ -230,7 +230,7 @@ pipeline {
             jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
                 fields: [
                     project: [key: "${JIRA_PROJECT_KEY}"],
-                    customfield_10401: [value: 'SUCCESS'],
+                    customfield_10401: [value: 'PASSED'],
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]
@@ -250,7 +250,7 @@ pipeline {
             jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
                 fields: [
                     project: [key: "${JIRA_PROJECT_KEY}"],
-                    customfield_10401: [value: 'FAILURE'],
+                    customfield_10401: [value: 'FAILED'],
                     issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
                 ]
             ]
