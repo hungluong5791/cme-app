@@ -9,7 +9,7 @@ pipeline {
         JIRA_CREDENTIALS = 'cme-jira-credentials'
         JIRA_PROJECT_KEY = 'DEMO'
         JIRA_ISSUE_TYPE_BUILD = 10500
-        JIRA_TRANSITION_START = 11
+        JIRA_TRANSITION_START = 21
         JIRA_TRANSITION_FINISH = 31
         
         DOCKER_IMAGE_NAME = 'cme-devops'
@@ -47,11 +47,11 @@ pipeline {
                     env.BUILD_TICKET_ID = response.data.id
 
                     // Start the JIRA build issue
-                    // jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
-                    //     transition: [
-                    //         id: "${JIRA_TRANSITION_START}",
-                    //     ]
-                    // ]
+                    jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
+                        transition: [
+                            id: "${JIRA_TRANSITION_START}",
+                        ]
+                    ]
                 }
             }
         }
@@ -154,11 +154,11 @@ pipeline {
     post {
         always {
             // Mark Build as Done
-            // jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
-            //     transition: [
-            //         id: "${JIRA_TRANSITION_FINISH}",
-            //     ]
-            // ]
+            jiraTransitionIssue idOrKey: env.BUILD_TICKET_ID, input: [
+                transition: [
+                    id: "${JIRA_TRANSITION_FINISH}",
+                ]
+            ]
 
             // Upload Xray result
             // withCredentials([usernamePassword(credentialsId: "${JIRA_CREDENTIALS}", passwordVariable: 'JIRA_PASSWORD', usernameVariable: 'JIRA_USERNAME')]) {
@@ -171,7 +171,7 @@ pipeline {
             // }
 
             // Archive reports
-            // archiveArtifacts allowEmptyArchive: true, artifacts: 'reports/*'
+            archiveArtifacts allowEmptyArchive: true, artifacts: 'reports/*'
 
             // Include test reports in issue description
             script {
@@ -217,23 +217,23 @@ pipeline {
                     env.testCasesExecutionSummary += testRunSummary
                 }
             }
-            // jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
-            //     fields: [
-            //         project: [key: "${JIRA_PROJECT_KEY}"],
-            //         description: "${env.testCasesExecutionSummary}",
-            //         issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
-            //     ]
-            // ]
+            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+                fields: [
+                    project: [key: "${JIRA_PROJECT_KEY}"],
+                    description: "${env.testCasesExecutionSummary}",
+                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
+                ]
+            ]
         }
 
         success {
-            // jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
-            //     fields: [
-            //         project: [key: "${JIRA_PROJECT_KEY}"],
-            //         customfield_10036: [value: 'SUCCESS'],
-            //         issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
-            //     ]
-            // ]
+            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+                fields: [
+                    project: [key: "${JIRA_PROJECT_KEY}"],
+                    customfield_10401: [value: 'SUCCESS'],
+                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
+                ]
+            ]
 
             emailext body: """
             <p>Build URL: ${env.BUILD_URL}</p>
@@ -247,13 +247,13 @@ pipeline {
         }
 
         failure {
-            // jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
-            //     fields: [
-            //         project: [key: "${JIRA_PROJECT_KEY}"],
-            //         customfield_10036: [value: 'FAILURE'],
-            //         issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
-            //     ]
-            // ]
+            jiraEditIssue idOrKey: env.BUILD_TICKET_ID, issue: [
+                fields: [
+                    project: [key: "${JIRA_PROJECT_KEY}"],
+                    customfield_10401: [value: 'FAILURE'],
+                    issuetype: [id: "${JIRA_ISSUE_TYPE_BUILD}"]
+                ]
+            ]
 
             emailext body: """
             <p>Build URL: ${env.BUILD_URL}</p>
